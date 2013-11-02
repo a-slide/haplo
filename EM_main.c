@@ -170,15 +170,16 @@ void importation_genotypes(char*** p_tab_geno, char* genotype_file, int* p_taill
 	
 	file = init_file_ptr(genotype_file, "r");
 	taille_geno = nb_char(file);
+	// Retour au début du fichier
+	rewind(file);
 	nb_geno = nb_ligne(file);
 	tab_geno = create_char_mat (nb_geno, taille_geno+1); //Création tableau vide destiné à contenir les génotypes
-	file = fopen(genotype_file, "r");
-	
-	while( i < nb_geno &&(fgets(tab_geno[i], taille_geno+2,file) != NULL) )
+	rewind(file);
+
+	while( i < nb_geno &&(fgets(tab_geno[i], taille_geno + 2, file) != NULL) )
 	{
-		char *p = strchr(tab_geno[i],'\n'); // la fonction strchr sert à rechercher un caractère dans une chaine et renvoie NULL si elle ne le trouve pas
-		if (p != NULL) *p = 0; // A chaque fois qu'elle trouve un \n, elle l'enlève
-		printf("\n");
+		if (tab_geno[i][taille_geno] == '\n')
+			tab_geno[i][taille_geno] = '\0';
 		i++;
 	}
 	fclose(file);
@@ -251,7 +252,7 @@ FILE* init_file_ptr (char* name, char* mode)
 // Compte le nombre de lignes du fichier
 int nb_ligne (FILE *fp)
 {
-	int n = 1, c;
+	int n = 0, c;
 	while ((c = fgetc(fp)) != EOF)
 		if (c == '\n')
 			n++;
