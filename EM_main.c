@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 	int nb_geno;
 	char* genotype_file;
 	char** tab_geno;
-	//char** tab_haplo;
+
 	
 	/******** Test d'usage *********/
 	if (argc != 2) usage(argv[0]); // Affiche usage et sort si nombre de paramètres incorect
@@ -268,6 +268,11 @@ int nb_char (FILE *fp)
 	return n;
 }
 
+////////////////////////////////////////////////////////////////////////
+// preparer_liste_geno_haplo.c
+////////////////////////////////////////////////////////////////////////
+
+
  ///** Appel fonction construction tableaux structures genotypes ***************************************************/
 void preparer_liste_geno (char** tab_geno, int taille_geno, int nb_geno)
 {
@@ -278,14 +283,14 @@ void preparer_liste_geno (char** tab_geno, int taille_geno, int nb_geno)
 	int nombre_geno=0;
 	for (j = 0 ; j < nb_geno ; j++)
 		construction_tableau_structure (tab_geno[j], &nombre_geno, &tab);
-	//for (j = 0 ; j < nombre_geno ; j++)
-		//printf("la séquence numéro %d est : %s\n",j, tab[j].sequence);
+	for (j = 0 ; j < nombre_geno ; j++)
+		printf("la séquence numéro %d est : %s\n",j, tab[j].sequence);
 }
 
 ///** EM_tableau_structures_genotypes ***************************************************/
+
 void construction_tableau_structure (char* geno_seq, int* p_nombre_geno, T_geno** p_tab)
 {
-	
 	int i=0;
 
 	if (*p_tab==NULL)
@@ -351,17 +356,16 @@ void extend_T_geno_tab (int nombre_geno, char* geno_seq, T_geno** tab)
 } 
 
  
-////////////////////////////////////////////////////////////////////////
-// preparer_liste_geno_haplo.c
-////////////////////////////////////////////////////////////////////////
  
 /**** preparer_liste_geno_haplo *********************************/
  
 void preparer_liste_geno_haplo (char** tab_geno, int taille_geno, int nb_geno)
 {
 	int i, j;
+	
 	char** tab_haplo_expl; // Pour stocker les haplotypes explicatif de chaque genotype
 	int nb_haplo_expl; // Nombre d'haplotypes expliquant un genotype
+	
 	T_haplo* tab_haplo; // Pour etablir une liste non redondante des haplotypes possibles
 	int nb_haplo; // nombre d'haplotype dans tab_haplo
 	int num_haplo_A, num_haplo_B; // Indices d'une paire d'haplotype explicative dans tab_haplo
