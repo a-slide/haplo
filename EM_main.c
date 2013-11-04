@@ -3,7 +3,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
- 
+
+typedef struct individu T_individu;
+struct individu
+{
+	char* sequence;
+	int num_geno;
+};
+
 typedef struct diplo_expl T_diplo_expl;
 struct diplo_expl
 {
@@ -21,8 +28,6 @@ struct geno
 	int nb_diplo_expl; // compteur de diplotype explicatifs
 	T_diplo_expl* tete;
 	T_diplo_expl* queue;
-	//T_individu* tete;
-	//T_individu* queue;
 };
 
 typedef struct geno_expl T_geno_expl;
@@ -42,7 +47,19 @@ struct haplo
 	T_geno_expl* tete;
 	T_geno_expl* queue;
 };
- 
+
+typedef struct info T_info;// structure contenant les variables et tableaux importants
+struct info
+{
+	int taille_geno;
+	int nb_ind;
+	int nb_geno;
+	int nb_haplo;
+	T_individu* tab_individus;
+	T_geno* tab_geno;
+	T_haplo* tab_haplo;
+};
+
 // Fonctions partagées par plusieurs fichiers sources
 char** create_char_mat (int, int);
 void print_string_table (char**, int);
@@ -273,12 +290,11 @@ void preparer_liste_geno_haplo (char** tab_individus, int taille_geno, int nb_in
 	
 	*p_tab_geno = NULL;
 	*p_tab_haplo = NULL;
-	nb_geno = 0;
-	nb_haplo = 0;
 	
 	// Création d'une liste de genotypes non redondants à partir de tab_individus
 	for (i = 0 ; i < nb_individus ; i++)
 		ajouter_tab_geno (tab_individus[i], &nb_geno, p_tab_geno);
+		//
 	
 	printf("\nListe non redondante de genotypes\n");
 	for (i = 0; i < nb_geno ; i ++)

@@ -1,4 +1,4 @@
 haplotype_inference
 =====
 
-Projet TP algo
+Projet TP algorithmique
