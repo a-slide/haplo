@@ -68,7 +68,7 @@ void print_string_table (char**, int);
 void usage (char*);
  
 // Fonctions specifiques de importation_genotypes
-void importation_genotypes(char***, char*, int*, int*);
+void importation_genotypes(T_individu**, char*, int*, int*);
 FILE* init_file_ptr (char* name, char* mode);
 int nb_ligne (FILE*);
 int nb_char (FILE*);
@@ -109,9 +109,9 @@ int main(int argc, char** argv)
 	int taille_geno;
 	int nb_ind;
 	char* genotype_file;
-	char** tab_individus; 	// Tableau de string contenant la liste de tt les génotypes de tt les individus
-	T_geno* tab_geno;		// Tableau de structure T_Geno contenant une liste non redondante de génotypes
-	T_haplo* tab_haplo;		// Tableau de structure T_Haplo contenant une liste non redondante d'haplotypes
+	T_individu* tab_individus; 	// Tableau de string contenant la liste de tt les génotypes de tt les individus
+	//T_geno* tab_geno;		// Tableau de structure T_Geno contenant une liste non redondante de génotypes
+	//T_haplo* tab_haplo;		// Tableau de structure T_Haplo contenant une liste non redondante d'haplotypes
 	
 	/******** Test d'usage *********/
 	if (argc != 2) usage(argv[0]); // Affiche usage et sort si nombre de paramètres incorect
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 	
 	/******** Importation et initialisation des données *********/
 	importation_genotypes (&tab_individus, genotype_file, &taille_geno, &nb_ind);
-	preparer_liste_geno_haplo (tab_individus, taille_geno, nb_ind, &tab_geno, &tab_haplo);
+	//preparer_liste_geno_haplo (tab_individus, taille_geno, nb_ind, &tab_geno, &tab_haplo);
 	//initialiser_frequence_haplotype
 	//calculer_frequence_genotype
 	
@@ -164,33 +164,33 @@ void usage (char* prog_name)
  
 /**** importation_genotypes *******************************************/
  
-void importation_genotypes(char*** p_tab_individus, char* genotype_file, int* p_taille_geno, int* p_nb_individus)
+void importation_genotypes(T_individu** p_tab_individus, char* genotype_file, int* p_taille_geno, int* p_nb_individus)
 {
 	int i = 0;
 	int taille_geno, nb_individus;
 	FILE* file = NULL;
-	char** tab_individus;
 	
 	file = init_file_ptr(genotype_file, "r");
 	taille_geno = nb_char(file);
 	rewind(file); // Retour au début du fichier
 	nb_individus = nb_ligne(file);
-	tab_individus = create_char_mat (nb_individus, taille_geno+1); // Création tableau vide destiné à contenir les génotypes
+	//tab_individus = create_char_mat (nb_individus, taille_geno+1); // Création tableau vide destiné à contenir les génotypes
 	rewind(file);
-
-	while( i < nb_individus &&(fgets(tab_individus[i], taille_geno + 2, file) != NULL) )
+	*p_tab_individus = malloc (sizeof (T_individu)*nb_individus); // Pas obligé de multiplié par le nombre d'individu ?
+	while( i < nb_individus &&(p_tab_individus[0][i].sequence = malloc (sizeof (taille_geno+2))) &&(fgets(p_tab_individus[0][i].sequence, taille_geno + 2, file) != NULL) ) // Il semble que quelle que soit la taille que j'alloue en mémoire ça marche, étrange ou normal ?
 	{
-		if (tab_individus[i][taille_geno] == '\n')
-			tab_individus[i][taille_geno] = '\0';
+		if (p_tab_individus[0][i].sequence[taille_geno] == '\n')
+			p_tab_individus[0][i].sequence[taille_geno] = '\0';
+			printf("Genotype #%d\t Sequence: %s\t\n", i, p_tab_individus[0][i].sequence);
 		i++;
 	}
 	fclose(file);
 	printf("\nTaille des génotypes = %d, Nombre de génotypes = %d\n\n", taille_geno, nb_individus);
-	print_string_table (tab_individus, nb_individus); // Affichage du Tableau rempli
+	//print_string_table (tab_individus, nb_individus); // Affichage du Tableau rempli
 	
 	*p_taille_geno = taille_geno; // Retour de la taille et du nombre de génotype au main
 	*p_nb_individus = nb_individus;
-	*p_tab_individus = tab_individus;
+	//*p_tab_individus = tab_individus;
 	return;
 }
  
