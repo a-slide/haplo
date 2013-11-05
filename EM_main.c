@@ -74,7 +74,7 @@ int nb_ligne (FILE*);
 int nb_char (FILE*);
  
 // Fonctions specifiques de initialiser_frequence_haplotype
-void preparer_liste_geno_haplo (char**, int, int, T_geno**, T_haplo**);
+void preparer_liste_geno_haplo (T_individu*, int, int, T_geno**, T_haplo**);
 
 void ajouter_tab_geno (char*, int*, T_geno**);
 void ajouter_tab_haplo (char*, int*, int*, T_haplo**);
@@ -110,8 +110,8 @@ int main(int argc, char** argv)
 	int nb_ind;
 	char* genotype_file;
 	T_individu* tab_individus; 	// Tableau de string contenant la liste de tt les génotypes de tt les individus
-	//T_geno* tab_geno;		// Tableau de structure T_Geno contenant une liste non redondante de génotypes
-	//T_haplo* tab_haplo;		// Tableau de structure T_Haplo contenant une liste non redondante d'haplotypes
+	T_geno* tab_geno;		// Tableau de structure T_Geno contenant une liste non redondante de génotypes
+	T_haplo* tab_haplo;		// Tableau de structure T_Haplo contenant une liste non redondante d'haplotypes
 	
 	/******** Test d'usage *********/
 	if (argc != 2) usage(argv[0]); // Affiche usage et sort si nombre de paramètres incorect
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 	
 	/******** Importation et initialisation des données *********/
 	importation_genotypes (&tab_individus, genotype_file, &taille_geno, &nb_ind);
-	//preparer_liste_geno_haplo (tab_individus, taille_geno, nb_ind, &tab_geno, &tab_haplo);
+	preparer_liste_geno_haplo (tab_individus, taille_geno, nb_ind, &tab_geno, &tab_haplo);
 	//initialiser_frequence_haplotype
 	//calculer_frequence_genotype
 	
@@ -174,23 +174,27 @@ void importation_genotypes(T_individu** p_tab_individus, char* genotype_file, in
 	taille_geno = nb_char(file);
 	rewind(file); // Retour au début du fichier
 	nb_individus = nb_ligne(file);
-	//tab_individus = create_char_mat (nb_individus, taille_geno+1); // Création tableau vide destiné à contenir les génotypes
 	rewind(file);
-	*p_tab_individus = malloc (sizeof (T_individu)*nb_individus); // Pas obligé de multiplié par le nombre d'individu ?
-	while( i < nb_individus &&(p_tab_individus[0][i].sequence = malloc (sizeof (taille_geno+2))) &&(fgets(p_tab_individus[0][i].sequence, taille_geno + 2, file) != NULL) ) // Il semble que quelle que soit la taille que j'alloue en mémoire ça marche, étrange ou normal ?
+	
+	printf("\nTaille des génotypes = %d, Nombre de génotypes = %d\n\n", taille_geno, nb_individus);
+	
+	*p_tab_individus = malloc (sizeof (T_individu) * nb_individus); // Pas obligé de faire le malloc ici...?
+	
+	for (i = 0; i < nb_individus; i++) 
 	{
+		p_tab_individus[0][i].sequence = malloc (sizeof (taille_geno));
+		fgets(p_tab_individus[0][i].sequence, taille_geno + 2, file);
+		
 		if (p_tab_individus[0][i].sequence[taille_geno] == '\n')
 			p_tab_individus[0][i].sequence[taille_geno] = '\0';
-			printf("Genotype #%d\t Sequence: %s\t\n", i, p_tab_individus[0][i].sequence);
-		i++;
+		
+		printf("Genotype #%d\t Sequence: %s\t\n", i, p_tab_individus[0][i].sequence);
 	}
-	fclose(file);
-	printf("\nTaille des génotypes = %d, Nombre de génotypes = %d\n\n", taille_geno, nb_individus);
-	//print_string_table (tab_individus, nb_individus); // Affichage du Tableau rempli
 	
+	fclose(file);
+		
 	*p_taille_geno = taille_geno; // Retour de la taille et du nombre de génotype au main
 	*p_nb_individus = nb_individus;
-	//*p_tab_individus = tab_individus;
 	return;
 }
  
@@ -275,7 +279,7 @@ int nb_char (FILE *fp)
  
 /**** preparer_liste_geno_haplo *********************************/
  
-void preparer_liste_geno_haplo (char** tab_individus, int taille_geno, int nb_individus, T_geno** p_tab_geno, T_haplo** p_tab_haplo)
+void preparer_liste_geno_haplo (T_individu* tab_individus, int taille_geno, int nb_individus, T_geno** p_tab_geno, T_haplo** p_tab_haplo)
 {
 	int i, j;
 	// Variables pour la liste de genotype non redondante (tab_geno)
@@ -293,7 +297,7 @@ void preparer_liste_geno_haplo (char** tab_individus, int taille_geno, int nb_in
 	
 	// Création d'une liste de genotypes non redondants à partir de tab_individus
 	for (i = 0 ; i < nb_individus ; i++)
-		ajouter_tab_geno (tab_individus[i], &nb_geno, p_tab_geno);
+		ajouter_tab_geno (tab_individus[i].sequence, &nb_geno, p_tab_geno);
 		//
 	
 	printf("\nListe non redondante de genotypes\n");
