@@ -3,95 +3,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-
-typedef struct individu T_individu;
-struct individu
-{
-	char* sequence;
-	int num_geno;
-};
-
-typedef struct diplo_expl T_diplo_expl;
-struct diplo_expl
-{
-	int num_haplo_A; // paire d'haplotype explicatifs = diplotype
-	int num_haplo_B;
-	T_diplo_expl* suivant;
-};
-
-typedef struct geno T_geno;// tête de liste de type T_diplo_expl
-struct geno
-{
-	char* sequence;
-	float proba;
-	int nb_ind; // compteur d'individus avec ce genotype
-	int nb_diplo_expl; // compteur de diplotype explicatifs
-	T_diplo_expl* tete;
-	T_diplo_expl* queue;
-};
-
-typedef struct geno_expl T_geno_expl;
-struct geno_expl
-{
-	int num_geno_expl; // genotype expliqué
-	int num_haplo_compl; // haplotype complémentaire pour expliquer le genotype concerné
-	T_geno_expl* suivant;
-};
- 
-typedef struct haplo T_haplo;// tête de liste de type T_geno_expl
-struct haplo
-{
-	char* sequence;
-	float frequence;
-	int nb_geno_expl;
-	T_geno_expl* tete;
-	T_geno_expl* queue;
-};
-
-typedef struct info T_info;// structure contenant les variables et tableaux importants
-struct info
-{
-	int taille_geno;
-	int nb_ind;
-	int nb_geno;
-	int nb_haplo;
-	T_individu* tab_individus;
-	T_geno* tab_geno;
-	T_haplo* tab_haplo;
-};
-
-// Fonctions partagées par plusieurs fichiers sources
-char** create_char_mat (int, int);
-void print_string_table (char**, int);
- 
-// Fonctions specifiques de main
-void usage (char*);
- 
-// Fonctions specifiques de importation_genotypes
-void importation_genotypes(T_individu**, char*, int*, int*);
-FILE* init_file_ptr (char* name, char* mode);
-int nb_ligne (FILE*);
-int nb_char (FILE*);
- 
-// Fonctions specifiques de initialiser_frequence_haplotype
-void preparer_liste_geno_haplo (T_individu*, int, int, T_geno**, T_haplo**);
-
-void ajouter_tab_geno (char*, int*, T_geno**);
-void ajouter_tab_haplo (char*, int*, int*, T_haplo**);
-
-void init_tab_geno (char*, T_geno**);
-void init_tab_haplo (char*, T_haplo**);
-
-void extend_tab_geno (int , char* , T_geno**);
-void extend_tab_haplo (int, char*, T_haplo**);
-
-int compte_ambiguites (char*, int);
-void haplotypes_possibles (char*, int, char***, int*);
-void ajouter_diplo_a_geno (int, int, int, T_geno**);
-void ajouter_geno_a_haplo (int, int, int, T_haplo**);
-void print_tab_haplo (int, T_haplo**, char***);
- 
- 
+#include "EM_main.h"
+  
 ////////////////////////////////////////////////////////////////////////
 // main.c
 ////////////////////////////////////////////////////////////////////////
@@ -106,13 +19,11 @@ int main(int argc, char** argv)
 	/******** Declaration des variables *********/
 	//int nb_iterations;
 	//int seuil;
-	int taille_geno;
-	int nb_ind;
 	char* genotype_file;
-	T_individu* tab_individus; 	// Tableau de string contenant la liste de tt les génotypes de tt les individus
-	T_geno* tab_geno;		// Tableau de structure T_Geno contenant une liste non redondante de génotypes
-	T_haplo* tab_haplo;		// Tableau de structure T_Haplo contenant une liste non redondante d'haplotypes
 	
+	// Declaration de la structure T_info var et initialisation des pointeurs à NULL
+	T_info var = { .tab_individus = NULL, .tab_geno = NULL, .tab_haplo = NULL };
+		
 	/******** Test d'usage *********/
 	if (argc != 2) usage(argv[0]); // Affiche usage et sort si nombre de paramètres incorect
 	
@@ -122,8 +33,8 @@ int main(int argc, char** argv)
 	//seuil = atoi (argv[3]);
 	
 	/******** Importation et initialisation des données *********/
-	importation_genotypes (&tab_individus, genotype_file, &taille_geno, &nb_ind);
-	preparer_liste_geno_haplo (tab_individus, taille_geno, nb_ind, &tab_geno, &tab_haplo);
+	importation_genotypes (genotype_file, &var);
+	preparer_liste_geno_haplo (&var);
 	//initialiser_frequence_haplotype
 	//calculer_frequence_genotype
 	
@@ -164,81 +75,40 @@ void usage (char* prog_name)
  
 /**** importation_genotypes *******************************************/
  
-void importation_genotypes(T_individu** p_tab_individus, char* genotype_file, int* p_taille_geno, int* p_nb_individus)
+void importation_genotypes(char* genotype_file, T_info* pvar)
 {
 	int i = 0;
-	int taille_geno, nb_individus;
 	FILE* file = NULL;
 	
 	file = init_file_ptr(genotype_file, "r");
-	taille_geno = nb_char(file);
+	pvar->taille = nb_char(file);
 	rewind(file); // Retour au début du fichier
-	nb_individus = nb_ligne(file);
+	pvar->nb_ind = nb_ligne(file);
 	rewind(file);
 	
-	printf("\nTaille des génotypes = %d, Nombre de génotypes = %d\n\n", taille_geno, nb_individus);
+	printf("\nTaille des génotypes = %d, Nombre d'individus = %d\n\n", pvar->taille, pvar->nb_ind);
 	
-	*p_tab_individus = malloc (sizeof (T_individu) * nb_individus); // Pas obligé de faire le malloc ici...?
+	pvar->tab_individus = malloc (sizeof (T_individu) * pvar->nb_ind);
 	
-	for (i = 0; i < nb_individus; i++) 
+	for (i = 0; i < pvar->nb_ind; i++) 
 	{
-		p_tab_individus[0][i].sequence = malloc (sizeof (taille_geno));
-		fgets(p_tab_individus[0][i].sequence, taille_geno + 2, file);
+		pvar->tab_individus[i].sequence = malloc (1); // creation d'un espace d'1 bit 
+		fgets(pvar->tab_individus[i].sequence, pvar->taille + 2, file); // remplissage et réalocation automatique par fgets...
 		
-		if (p_tab_individus[0][i].sequence[taille_geno] == '\n')
-			p_tab_individus[0][i].sequence[taille_geno] = '\0';
+		if (pvar->tab_individus[i].sequence[pvar->taille] == '\n')
+			pvar->tab_individus[i].sequence[pvar->taille] = '\0';
 		
-		printf("Genotype #%d\t Sequence: %s\t\n", i, p_tab_individus[0][i].sequence);
+		printf("Individu #%d\t Sequence: %s\t\n", i, pvar->tab_individus[i].sequence);
 	}
 	
 	fclose(file);
-		
-	*p_taille_geno = taille_geno; // Retour de la taille et du nombre de génotype au main
-	*p_nb_individus = nb_individus;
 	return;
-}
- 
-/**** create_char_mat *************************************************/
- 
-char** create_char_mat (int col, int line)
-{
-	int i;
-	char** matrice;
-	matrice = malloc (sizeof (char*) * col); // creation colonnes
-	
-	if (matrice == NULL)	// Verification de l'allocation
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
-	for ( i = 0; i < col; i++ )
-	{
-		matrice[i] = malloc (sizeof (char) * line); // creation lignes
-		if (matrice[i] == NULL)
-		{
-			fprintf (stderr, "Allocation impossible\n\n");
-			exit (EXIT_FAILURE);
-		}
-	}
-	return matrice;
 }
 
-/**** print_string_table **********************************************/
- 
-void print_string_table (char** tab, int line)
-{
-	int i;
-	 
-	for (i = 0 ; i < line ; i++)
-		printf("#%i : %s\n", i, tab[i]);
-	printf("\n");
-	return;
-}
- 
 /***** init_file_ptr **************************************************/
 // name = nom du fichier à ouvrir
 // mode = mode d'ouverture d'un fichier r = lecture, w = ecriture a = append
- FILE* init_file_ptr (char* name, char* mode)
+FILE* init_file_ptr (char* name, char* mode)
 {
 	FILE* file = NULL;
 	
@@ -272,273 +142,340 @@ int nb_char (FILE *fp)
 	return n;
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 // preparer_liste_geno_haplo.c
 ////////////////////////////////////////////////////////////////////////
  
-/**** preparer_liste_geno_haplo *********************************/
- 
-void preparer_liste_geno_haplo (T_individu* tab_individus, int taille_geno, int nb_individus, T_geno** p_tab_geno, T_haplo** p_tab_haplo)
+/**** preparer_liste_geno_haplo ***************************************/
+// T_individu* tab_individus, int taille, int nb_individus, T_geno** p_tab_geno, T_haplo** p_tab_haplo
+void preparer_liste_geno_haplo (T_info* pvar)
 {
 	int i, j;
-	// Variables pour la liste de genotype non redondante (tab_geno)
-	int nb_geno; // Nombre de genotypes totalno 
-	///int num_geno; // Indice du genotype
-	// Variables pour la liste d'haplotypes explicatifs générée par genotype (tab_haplo_expl)
-	char** tab_haplo_expl; // Pour stocker les haplotypes explicatifs
-	int nb_haplo_expl; // Nombre d'haplotypes explicatifs
-	// Variables pour la liste d'haplotype non redondante (tab_haplo)
-	int nb_haplo; // Nombre d'haplotype total
-	int num_haplo_A, num_haplo_B; // Indices d'une paire d'haplotypes explicatifs
-	
-	*p_tab_geno = NULL;
-	*p_tab_haplo = NULL;
-	
+	int num_geno, num_haplo_A, num_haplo_B; // Indices d'un genotype et d'une paire d'haplotypes explicatifs
+
 	// Création d'une liste de genotypes non redondants à partir de tab_individus
-	for (i = 0 ; i < nb_individus ; i++)
-		ajouter_tab_geno (tab_individus[i].sequence, &nb_geno, p_tab_geno);
-		//
 	
+	printf("\nListe des individus et numero de genotype correspondant\n");
+	for (i = 0 ; i < pvar->nb_ind; i++)
+	{
+		num_geno = ajouter_tab_geno (pvar->tab_individus[i].sequence, pvar);
+		printf("Individu #%d\t Genotype %d\n",i, num_geno);
+		//ajouter_geno_a_individu (i, pvar);
+	}	
 	printf("\nListe non redondante de genotypes\n");
-	for (i = 0; i < nb_geno ; i ++)
-			printf("Genotype #%d\t Sequence %s\t Individus concernés %d\n", i, p_tab_geno[0][i].sequence, p_tab_geno[0][i].nb_ind);
+	for (i = 0; i < pvar->nb_geno ; i ++)
+			printf("Genotype #%d\t Sequence %s\t Individus concernés %d\n",\
+			i, pvar->tab_geno[i].sequence, pvar->tab_geno[i].nb_ind);
 	
 	// Parcours du tableau de structure T_geno pour analyser les genotypes 1 par 1
-	for (i = 0; i < nb_geno ; i ++)
+	for (i = 0; i < pvar->nb_geno ; i ++)
 	{
 		// Genere une liste des haplotypes explicatifs potentiels pour le genotype i
-		haplotypes_possibles (p_tab_geno[0][i].sequence, taille_geno, &tab_haplo_expl, &nb_haplo_expl);
-		///print_string_table (tab_haplo_expl, nb_haplo_expl); // verification des haplotypes générés
+		haplotypes_possibles (pvar->tab_geno[i].sequence, pvar);
+		//print_string_table (pvar->tab_haplo_expl, pvar->nb_haplo_expl); //  Verification des haplotypes générés
 	
-		for (j = 0; j < nb_haplo_expl; j +=2 ) // Boucle parcourant les haplotypes explicatifs par paire complémentaire (diplotypes)
+		for (j = 0; j < pvar->nb_haplo_expl; j +=2 ) // Parcours des haplotypes explicatifs par paire complémentaire
 		{
 			// Ajout des haplotypes A et B d'une paire explicative à la liste des haplotypes si ils n'existent pas et retour de leur indice
-			ajouter_tab_haplo (tab_haplo_expl[j], &nb_haplo, &num_haplo_A, p_tab_haplo);
-			ajouter_tab_haplo (tab_haplo_expl[j+1], &nb_haplo, &num_haplo_B, p_tab_haplo);
+			num_haplo_A = ajouter_tab_haplo (pvar->tab_haplo_expl[j], pvar);
+			num_haplo_B = ajouter_tab_haplo (pvar->tab_haplo_expl[j+1], pvar);
 			///printf("Diplotype #%d: haplotype #%d haplotype #%d\n\n ", j/2, num_haplo_A, num_haplo_B);
 			
 			// Mettre les genotypes explicatifs avec l'haplo complementaire dans la liste chainée associée à chacun des 2 haplotypes
-			ajouter_geno_a_haplo (num_haplo_A, num_haplo_B, i, p_tab_haplo);
-			ajouter_geno_a_haplo (num_haplo_B, num_haplo_A, i, p_tab_haplo);
+			ajouter_geno_a_haplo (num_haplo_A, num_haplo_B, i, pvar);
+			ajouter_geno_a_haplo (num_haplo_B, num_haplo_A, i, pvar);
 			
 			//Mettre les paires d'haplotypes dans la liste chainée associée au génotype courant
-			ajouter_diplo_a_geno (num_haplo_A, num_haplo_B, i, p_tab_geno);
+			ajouter_diplo_a_geno (num_haplo_A, num_haplo_B, i, pvar);
 		}
-		// Desalouer l'espace mémoire de tab_haplo_expl
+		//liberer_char_mat (pvar->tab_haplo_expl, pvar->nb_haplo_expl);
 	}
 	
 	printf("\nListe non redondante d'haplotypes\n");
-	for (i = 0; i < nb_haplo ; i ++)
-			printf("Haplotype #%d\t Sequence %s\t Genotypes concernés %d\n", i, p_tab_haplo[0][i].sequence, p_tab_haplo[0][i].nb_geno_expl);
+	for (i = 0; i < pvar->nb_haplo ; i ++)
+			printf("Haplotype #%d\t Sequence %s\t Genotypes concernés %d\n",\
+				i, pvar->tab_haplo[i].sequence, pvar->tab_haplo[i].nb_geno_expl);
 		
-	///print_tab_haplo (nb_haplo, &tab_haplo, &tab_geno);
+	print_tab_haplo (pvar);
 	return;
 }
  
-///** ajouter un genotype de tableau tab_geno *************************/
-void ajouter_tab_geno (char* geno_seq, int* p_nb_geno, T_geno** p_tab_geno)
+ 
+///** ajouter_tab_geno  ***********************************************/
+int ajouter_tab_geno (char* geno_seq, T_info* pvar)
+//char* geno_seq, int* p_nb_geno, T_geno** p_tab_geno
 {
 	int i;
 	// Si la matrice est vide = ajout du premier genotype
-	if (*p_tab_geno==NULL) 
+	if (pvar->tab_geno == NULL) 
 	{
 		///printf("Ajout du premier genotype en position 0\n");
-		*p_nb_geno = 1;
-		init_tab_geno (geno_seq, p_tab_geno);
-		return;
+		pvar->nb_geno = 1;
+		init_tab_geno (geno_seq, pvar);
+		return 0; // retour de la position 0
 	}
 	// Sinon recherche si le genotype existe déjà dans la liste
-	for (i = 0; i < *p_nb_geno; i++)
+	for (i = 0; i < pvar->nb_geno; i++)
 	{ 
-		if ( strcmp(p_tab_geno[0][i].sequence, geno_seq) == 0 )
+		if ( strcmp(pvar->tab_geno[i].sequence, geno_seq) == 0 ) // si chaines identiques
 		{
 			///printf("Le genotype existe déjà en position %d\n", i);
-			p_tab_geno[0][i].nb_ind++;	
-			return;	
+			pvar->tab_geno[i].nb_ind++;	
+			return i; // retour de la position ou le genotype a été trouvé
 		}
 	}
 	// Sinon stockage du genotype dans une nouvelle case à la suite du tableau
 	///printf("Ajout d'un nouveau génotype en position %d\n", i);
-	*p_nb_geno = i+1;
-	extend_tab_geno (*p_nb_geno, geno_seq, p_tab_geno);
-	return;
+	pvar->nb_geno = i+1;
+	extend_tab_geno (geno_seq, pvar);
+	return i; // retour de la position ou le genotype a été ajouté
 }
- 
-///** initialisation tableau genotype *********************************/
-void init_tab_geno (char* geno_seq, T_geno** p_tab_geno)
+
+/**** ajouter_tab_haplo ***********************************************/
+int ajouter_tab_haplo (char* haplo_seq, T_info* pvar)
+//char* haplo_seq, int* p_nb_haplo, int* p_haplo_num, T_haplo** p_tab_haplo
 {
-	*p_tab_geno = malloc (sizeof (T_geno)); // taille = 1 pour le premier element
+	int i;
+	// Si la matrice est vide = ajout du premier haplotype
+	if (pvar->tab_haplo == NULL)
+	{ 
+		printf("Ajout du premier haplotype en position 0\n");
+		pvar->nb_haplo = 1;
+		init_tab_haplo (haplo_seq, pvar);
+		return 0; // retour de la position 0
+	}
+	// Sinon recherche si l'haplotype existe déjà dans la liste
+	for (i = 0; i < pvar->nb_haplo; i++)
+	{
+		if ( strcmp(pvar->tab_haplo[i].sequence, haplo_seq) == 0 ) // si chaines identiques
+		{
+			printf("L'haplotype existe déjà en position %d\n", i);
+			pvar->tab_haplo[i].nb_geno_expl++;
+			return i; // retour de la position ou l'haplotype a été trouvé
+		}
+	}
+	// Sinon stockage de l'haplotype dans une nouvelle case à la suite du tableau
+	printf("Ajout d'un nouvel haplotype en position %d\n", i);
+	pvar->nb_haplo = i+1;
+	extend_tab_haplo (haplo_seq, pvar);
+	return i;
+}
+
+
+
+///** init_tab_geno ***************************************************/
+void init_tab_geno (char* geno_seq, T_info* pvar)
+//char* geno_seq, T_geno** p_tab_geno
+{
+	pvar->tab_geno = malloc (sizeof (T_geno)); // taille = 1 pour le premier element
 	
-	if (*p_tab_geno == NULL)
+	if (pvar->tab_geno == NULL)
 	{
 		fprintf (stderr, "Allocation impossible\n\n");
 		exit (EXIT_FAILURE);
 	}
-	p_tab_geno[0][0].sequence = geno_seq;
-	p_tab_geno[0][0].proba = 0;
-	p_tab_geno[0][0].nb_ind = 1;
-	p_tab_geno[0][0].nb_diplo_expl = 0;
-	p_tab_geno[0][0].tete = NULL;
-	p_tab_geno[0][0].queue = NULL;
+	
+	pvar->tab_geno[0].sequence = geno_seq;
+	pvar->tab_geno[0].proba = 0;
+	pvar->tab_geno[0].nb_ind = 1;
+	pvar->tab_geno[0].nb_diplo_expl = 0;
+	pvar->tab_geno[0].tete = NULL;
+	pvar->tab_geno[0].queue = NULL;
 	return;	
 }
- 
- /// Ajout d'une case au tableau genotype ///////////////////////////////////
-void extend_tab_geno (int nb_geno, char* geno_seq, T_geno** p_tab_geno)
- {
-	*p_tab_geno = realloc (*p_tab_geno, sizeof (T_geno) * nb_geno);
+
+/**** init_tab_haplo **************************************************/
+void init_tab_haplo (char* haplo_seq, T_info* pvar)
+//char* haplo_seq, T_haplo** p_tab_haplo
+{
+	pvar->tab_haplo = malloc (sizeof (T_haplo)); // taille = 1 pour le premier element
 	
-	if (*p_tab_geno == NULL)
+	if (pvar->tab_haplo == NULL)
 	{
 		fprintf (stderr, "Allocation impossible\n\n");
 		exit (EXIT_FAILURE);
 	}
-	p_tab_geno[0][nb_geno-1].sequence = geno_seq;
-	p_tab_geno[0][nb_geno-1].nb_ind = 1;
-	p_tab_geno[0][nb_geno-1].nb_diplo_expl = 0;
-	p_tab_geno[0][nb_geno-1].tete = NULL;
-	p_tab_geno[0][nb_geno-1].queue = NULL;
+	
+	pvar->tab_haplo[0].sequence = haplo_seq;
+	pvar->tab_haplo[0].frequence = 0;
+	pvar->tab_haplo[0].nb_geno_expl = 1;
+	pvar->tab_haplo[0].tete = NULL;
+	pvar->tab_haplo[0].queue = NULL;
+	return;
+}
+ 
+ 
+ 
+///** extend_tab_geno *************************************************/
+void extend_tab_geno (char* geno_seq, T_info* pvar)
+//int nb_geno, char* geno_seq, T_geno** p_tab_geno
+ {
+	int n = pvar->nb_geno; // Nombre de génotypes dans la tab_geno
+	
+	pvar->tab_geno = realloc (pvar->tab_geno, sizeof (T_geno) * n);
+	
+	if (pvar->tab_geno == NULL)
+	{
+		fprintf (stderr, "Allocation impossible\n\n");
+		exit (EXIT_FAILURE);
+	}
+	
+	pvar->tab_geno[n-1].sequence = geno_seq;
+	pvar->tab_geno[n-1].nb_ind = 1;
+	pvar->tab_geno[n-1].nb_diplo_expl = 0;
+	pvar->tab_geno[n-1].tete = NULL;
+	pvar->tab_geno[n-1].queue = NULL;
 	return;
 } 
- 
+
+/**** extend_tab_haplo ************************************************/
+void extend_tab_haplo (char* haplo_seq, T_info* pvar)
+//int nb_haplo, char* haplo_seq, T_haplo** p_tab_haplo
+{
+	int n = pvar->nb_haplo; // Nombre de génotypes dans la tab_geno
+	
+	pvar->tab_haplo = realloc (pvar->tab_haplo , sizeof (T_haplo) * n);
+	
+	if (pvar->tab_haplo == NULL)
+	{
+		fprintf (stderr, "Allocation impossible\n\n");
+		exit (EXIT_FAILURE);
+	}
+	
+	pvar->tab_haplo[n-1].sequence = haplo_seq;
+	pvar->tab_haplo[n-1].frequence = 0;
+	pvar->tab_haplo[n-1].nb_geno_expl = 1;
+	pvar->tab_haplo[n-1].tete = NULL;
+	pvar->tab_haplo[n-1].queue = NULL;
+	return;
+}
+
 /**** haplotypes_possibles ********************************************/
-void haplotypes_possibles (char* genotype, int taille_geno, char*** p_tab_haplo, int* p_nb_haplo)
+void haplotypes_possibles (char* geno_seq, T_info* pvar)
+//char* genotype, int taille, char*** p_tab_haplo, int* p_nb_haplo
 {
 	int nb_amb, amb; // nombre total d'ambiguité dans la séquence et compteur d'ambiguité courante
-	int change_prog; // variable booléenne utilisé pour remplir le tableau des haplotype possible en suivant alternativement 1/0 ou 0/1
+	int change_prog; // variable booléenne pour remplir le tableau des haplotype possible en suivant alternativement 1/0 ou 0/1
 	int val_basc, basc; //valeur à attendre pour basculer change_prog et compteur de basculement
-	int nb_haplo; // calculé à partir du nombre d'ambiguités
 	int j, k; // variables de contrôle de boucle
-	char** tab_haplo; // tableau temporaire permettant de stocker les haplotypes explicatifs générés.
+	int n; // compteur d'haplotypes générable pour le génotype donné (a retourner par p_nb_haplo_expl)
+	char** tab; // tableau permettant de stocker temporairement les haplo générés
 	
-	nb_amb = compte_ambiguites (genotype, taille_geno); // calcul du nombre d'ambiguités dans le genotype courant
+	nb_amb = compte_ambiguites(geno_seq, pvar->taille); // calcul du nombre d'ambiguités dans le genotype courant
 	///printf("Nombre d'ambiguités : %d\n", nb_amb);
 	
-	if (nb_amb != 0) nb_haplo = exp2(nb_amb);
-	else nb_haplo = 2; // si 0 ambiguité, il faut quand même générer 2 haplotypes
+	if (nb_amb != 0) n = exp2(nb_amb); // il existe 2^amb haplotypes possibles
+	else n = 2; // si 0 ambiguité, il faut quand même générer 2 haplotypes
 	 
-	tab_haplo = create_char_mat (nb_haplo, taille_geno+1);
+	tab = create_char_mat (n, pvar->taille+1);
 	amb = 0;
 	
-	for (j = 0; j < taille_geno ; j ++)
+	for (j = 0; j < pvar->taille ; j ++)
 	{
-		if (genotype[j] == '0') // Garnissage de tous les champs de la table haplo à cette même position avec 0
-			for (k = 0; k < nb_haplo ; k ++)
-				tab_haplo[k][j] = '0';
+		if (geno_seq[j] == '0') // Garnissage de tous les champs de la table haplo à cette même position avec 0
+			for (k = 0; k < n ; k ++)
+				tab[k][j] = '0';
 
-		else if (genotype[j] == '2') // Garnissage tous les champs de la table haplo à cette même position avec 0
-			for (k = 0; k < nb_haplo ; k ++)
-				tab_haplo[k][j] = '1';
+		else if (geno_seq[j] == '2') // Garnissage tous les champs de la table haplo à cette même position avec 0
+			for (k = 0; k < n ; k ++)
+				tab[k][j] = '1';
 
 		else  // cas le plus complexe de position ambigue
 		{
-			change_prog = 0;
-			val_basc = nb_haplo/exp2(amb++); // Calcul le nbr d'haplotype aprés lequel il faut changer le sens de remplissage
-			for (k = 0, basc = 0 ; k < nb_haplo ; k +=2, basc +=2)  // k = compteur de boucle
+			change_prog = 0; // initialisation du booléen
+			val_basc = exp2(nb_amb)/exp2(amb++); // Nb d'haplotype aprés lequel il faut changer le sens de remplissage
+			for (k = 0, basc = 0 ; k < n ; k +=2, basc +=2)  // k = compteur de boucle
 			{
-				if (basc == val_basc) // Si le compteur de basculement atteint la valeur de bascule
-				{ 
+				if (basc == val_basc) { // Si le compteur de basculement atteint la valeur de bascule
 					change_prog = !change_prog ; // bascule du booléen
 					basc = 0 ; // reinitialisation du compteur de basculement
 				}
-				if (change_prog == 0) // remplissage sens 0/1
-				{
-					tab_haplo[k][j] = '0';
-					tab_haplo[k+1][j] = '1';
+				if (change_prog == 0) { // remplissage sens 0/1
+					tab[k][j] = '0';
+					tab[k+1][j] = '1';
 				}
-				else
-				{ // remplissage sens 1/0
-					tab_haplo[k][j] = '1';
-					tab_haplo[k+1][j] = '0';
+				else { // remplissage sens 1/0
+					tab[k][j] = '1';
+					tab[k+1][j] = '0';
 				}
 			}
 		}
 	}
-	*p_tab_haplo = tab_haplo;
-	*p_nb_haplo = nb_haplo;
+	pvar->tab_haplo_expl = tab;
+	pvar->nb_haplo_expl = n;
 	return;
 }
  
+/**** create_char_mat *************************************************/
+ 
+char** create_char_mat (int col, int line)
+{
+	int i;
+	char** matrice;
+	matrice = malloc (sizeof (char*) * col); // creation colonnes
+	
+	if (matrice == NULL)	// Verification de l'allocation
+	{
+		fprintf (stderr, "Allocation impossible\n\n");
+		exit (EXIT_FAILURE);
+	}
+	for ( i = 0; i < col; i++ )
+	{
+		matrice[i] = malloc (sizeof (char) * line); // creation lignes
+		if (matrice[i] == NULL)
+		{
+			fprintf (stderr, "Allocation impossible\n\n");
+			exit (EXIT_FAILURE);
+		}
+	}
+	return matrice;
+}
+
+/**** liberer_char_mat *************************************************/
+ void liberer_char_mat (char** tab, int line)
+{
+	int i;
+
+	for (i = 0; i < line; i++)
+			free(tab[i]);
+			
+	free(tab);
+		return;
+}
+
+/**** print_string_table **********************************************/
+ void print_string_table (char** tab, int line)
+{
+	int i;
+	 
+	for (i = 0 ; i < line ; i++)
+		printf("#%i : %s\n", i, tab[i]);
+	printf("\n");
+	return;
+}
+
 /**** compte_ambiguites ***********************************************/
-int compte_ambiguites (char* genotype, int taille_geno)
+int compte_ambiguites (char* geno_seq, int taille)
+//char* geno_seq, int taille
 {
 	int i;
 	int nb_amb = 0;
 	
-	for (i = 0 ; i < taille_geno; i++)
-		if (genotype[i] == '1')
+	for (i = 0 ; i < taille; i++)
+		if (geno_seq[i] == '1')
 			nb_amb ++;
 	return nb_amb;
 }
  
-/**** ajouter_tab_haplo ***********************************************/
-void ajouter_tab_haplo (char* haplo_seq, int* p_nb_haplo, int* p_haplo_num, T_haplo** p_tab_haplo)
-{
-	int i;
-	// Si la matrice est vide = ajout du premier haplotype
-	if (*p_tab_haplo == NULL) { 
-		///printf("Ajout du premier haplotype en position 0\n");
-		*p_haplo_num = 0;
-		*p_nb_haplo = 1;
-		init_tab_haplo (haplo_seq, p_tab_haplo);
-		return;
-	}
-	// Sinon recherche si l'haplotype existe déjà dans la liste
-	for (i = 0; i < *p_nb_haplo; i++)
-	{
-		if ( strcmp(p_tab_haplo[0][i].sequence, haplo_seq) == 0 ) // si chaines identiques
-		{
-			///printf("L'haplotype existe déjà en position %d\n", i);
-			*p_haplo_num = i;
-			p_tab_haplo[0][i].nb_geno_expl++;
-			return;
-		}
-	}
-	// Sinon stockage de l'haplotype dans une nouvelle case à la suite du tableau
-	///printf("Ajout d'un nouvel haplotype en position %d\n", i);
-	*p_haplo_num = i;
-	*p_nb_haplo = i+1;
-	extend_tab_haplo (*p_nb_haplo, haplo_seq, p_tab_haplo);
-	return;
-}
  
-/**** init_tab_haplo ************************************************/
-void init_tab_haplo (char* haplo_seq, T_haplo** p_tab_haplo)
-{
-	*p_tab_haplo = malloc (sizeof (T_haplo)); // taille = 1 pour le premier element
-	if (*p_tab_haplo == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
-	p_tab_haplo[0][0].sequence = haplo_seq;
-	p_tab_haplo[0][0].frequence = 0;
-	p_tab_haplo[0][0].nb_geno_expl = 1;
-	p_tab_haplo[0][0].tete = NULL;
-	p_tab_haplo[0][0].queue = NULL;
-	return;
-}
- 
-/**** extend_tab_haplo **********************************************/
-void extend_tab_haplo (int nb_haplo, char* haplo_seq, T_haplo** p_tab_haplo)
-{
-	*p_tab_haplo = realloc (*p_tab_haplo , sizeof (T_haplo) * nb_haplo);
-	if (*p_tab_haplo == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
-	p_tab_haplo[0][nb_haplo-1].sequence = haplo_seq;
-	p_tab_haplo[0][nb_haplo-1].frequence = 0;
-	p_tab_haplo[0][nb_haplo-1].nb_geno_expl = 1;
-	p_tab_haplo[0][nb_haplo-1].tete = NULL;
-	p_tab_haplo[0][nb_haplo-1].queue = NULL;
-	return;
-}
- 
+///** ajouter_geno_a_individu *****************************************/
+///void ajouter_geno_a_individu (int num_geno, T_info* pvar)
+// int num_geno, T_individu* tab_individus
+// A CODER
+
 /**** ajouter_diplo_a_geno ********************************************/
-void ajouter_diplo_a_geno (int num_haplo_A, int num_haplo_B, int num_geno, T_geno** p_tab_geno)
+void ajouter_diplo_a_geno (int num_haplo_A, int num_haplo_B, int num_geno, T_info* pvar)
+//int num_haplo_A, int num_haplo_B, int num_geno, T_geno** p_tab_geno
 {
 	T_diplo_expl* cellule = malloc( sizeof (T_diplo_expl));
 	if (cellule == NULL)
@@ -550,21 +487,22 @@ void ajouter_diplo_a_geno (int num_haplo_A, int num_haplo_B, int num_geno, T_gen
 	cellule -> num_haplo_B = num_haplo_B;
 	cellule -> suivant = NULL;
 
-	if (p_tab_geno[0][num_geno].tete == NULL) // ajout de la première cellule à la liste
+	if (pvar->tab_geno[num_geno].tete == NULL) // ajout de la première cellule à la liste
 	{
-		p_tab_geno[0][num_geno].tete = cellule;
-		p_tab_geno[0][num_geno].queue = cellule;
+		pvar->tab_geno[num_geno].tete = cellule;
+		pvar->tab_geno[num_geno].queue = cellule;
 	}
 	else // ajout en queue de liste = chainage simplifié
 	{
-		p_tab_geno[0][num_geno].queue -> suivant = cellule; // chainage avec cellule precedente
-		p_tab_geno[0][num_geno].queue = cellule; // avancée du pointeur
+		pvar->tab_geno[num_geno].queue -> suivant = cellule; // chainage avec cellule precedente
+		pvar->tab_geno[num_geno].queue = cellule; // avancée du pointeur
 	}
 	return;
 }
  
 /**** ajouter_geno_a_haplo ********************************************/
-void ajouter_geno_a_haplo (int num_haplo_principal, int num_haplo_compl, int num_geno_expl, T_haplo** p_tab_haplo)
+void ajouter_geno_a_haplo (int num_haplo_principal, int num_haplo_compl, int num_geno_expl, T_info* pvar)
+//int num_haplo_principal, int num_haplo_compl, int num_geno_expl, T_haplo** p_tab_haplo
 {
 	T_geno_expl* cellule = malloc( sizeof (T_geno_expl));
 	if (cellule == NULL)
@@ -576,32 +514,34 @@ void ajouter_geno_a_haplo (int num_haplo_principal, int num_haplo_compl, int num
 	cellule -> num_haplo_compl = num_haplo_compl;
 	cellule -> suivant = NULL;
 
-	if (p_tab_haplo[0][num_haplo_principal].tete == NULL) // Ajout de la première cellule à la liste
+	if (pvar->tab_haplo[num_haplo_principal].tete == NULL) // Ajout de la première cellule à la liste
 	{
-		p_tab_haplo[0][num_haplo_principal].tete = cellule;
-		p_tab_haplo[0][num_haplo_principal].queue = cellule;
+		pvar->tab_haplo[num_haplo_principal].tete = cellule;
+		pvar->tab_haplo[num_haplo_principal].queue = cellule;
 	}
 	else // Ajout en queue de liste = chainage simplifié
 	{
-		p_tab_haplo[0][num_haplo_principal].queue -> suivant = cellule; // Chainage avec cellule precedente
-		p_tab_haplo[0][num_haplo_principal].queue = cellule; // Avancée du pointeur
+		pvar->tab_haplo[num_haplo_principal].queue -> suivant = cellule; // Chainage avec cellule precedente
+		pvar->tab_haplo[num_haplo_principal].queue = cellule; // Avancée du pointeur
 	}
 	return;
 }
  
-/**** print_tab_haplo ********************************************/
-void print_tab_haplo (int nb_haplo, T_haplo** p_tab_haplo, char*** tab_geno)
+/**** print_tab_haplo *************************************************/
+void print_tab_haplo (T_info* pvar)
+//int nb_haplo, T_haplo** p_tab_haplo, T_geno** tab_geno
 {
 	int i;
-	T_geno_expl* ptrj = p_tab_haplo[0][0].tete;
-	printf("Liste non redondante des haplotypes et des genotype expliqué\n\n");
-	for (i = 0; i < nb_haplo; i++ )
+	T_geno_expl* ptrj = pvar->tab_haplo[0].tete;
+	
+	printf("Liste non redondante des haplotypes et des genotypes expliqués\n\n");
+	for (i = 0; i < pvar->nb_haplo; i++ )
 	{
-		printf("Haplotype #%d \t Séquence : %s \t Fréquence %f \t Nombre de genotype(s) expliqué(s) : %d \n",i, p_tab_haplo[0][i].sequence, p_tab_haplo[0][i].frequence, p_tab_haplo[0][i].nb_geno_expl);
+		printf("Haplotype #%d \t Séquence : %s \t Fréquence %f \t Nombre de genotype(s) expliqué(s) : %d \n",i, pvar->tab_haplo[i].sequence, pvar->tab_haplo[i].frequence, pvar->tab_haplo[i].nb_geno_expl);
 		printf("Liste des génotypes expliqués\n");
 		while (ptrj != NULL)
 		{
-			//printf("Genotype # %d (%s) avec Haplotype # %d (%s)\n", ptrj -> num_geno_expl, *tab_geno[ptrj->num_geno_expl], ptrj -> num_haplo_compl, p_tab_haplo[0][ptrj->num_haplo_compl].sequence );
+			//printf("Genotype # %d (%s) avec Haplotype # %d (%s)\n", ptrj -> num_geno_expl, *tab_geno[ptrj->num_geno_expl], ptrj -> num_haplo_compl, pvar->tab_haplo[ptrj->num_haplo_compl].sequence );
 			printf("#");
 			ptrj = ptrj -> suivant;
 		}
