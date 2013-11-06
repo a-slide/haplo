@@ -530,17 +530,27 @@ void print_tab_haplo (T_info* pvar)
 //int nb_haplo, T_haplo** p_tab_haplo, T_geno** tab_geno
 {
 	int i;
-	T_geno_expl* ptrj = pvar->tab_haplo[0].tete;
+	T_geno_expl* ptrj = NULL;
 	
 	printf("Liste non redondante des haplotypes et des genotypes expliqués\n\n");
 	for (i = 0; i < pvar->nb_haplo; i++ )
 	{
-		printf("Haplotype #%d \t Séquence : %s \t Fréquence %f \t Nombre de genotype(s) expliqué(s) : %d \n",i, pvar->tab_haplo[i].sequence, pvar->tab_haplo[i].frequence, pvar->tab_haplo[i].nb_geno_expl);
+		ptrj = pvar->tab_haplo[i].tete;
+		printf("Haplotype #%d \t Séquence : %s \t Fréquence %f \t Nombre de genotype(s) expliqué(s) : %d \n",
+			i,
+			pvar->tab_haplo[i].sequence,
+			pvar->tab_haplo[i].frequence,
+			pvar->tab_haplo[i].nb_geno_expl);
+			
 		printf("Liste des génotypes expliqués\n");
-		while (ptrj != NULL)
+		while (ptrj)
 		{
-			//printf("Genotype # %d (%s) avec Haplotype # %d (%s)\n", ptrj -> num_geno_expl, *tab_geno[ptrj->num_geno_expl], ptrj -> num_haplo_compl, pvar->tab_haplo[ptrj->num_haplo_compl].sequence );
-			printf("#");
+			printf("Genotype # %d (%s) avec Haplotype # %d (%s)\n", 
+				ptrj -> num_geno_expl,
+				pvar->tab_geno[ptrj->num_geno_expl].sequence,
+				ptrj -> num_haplo_compl,
+				pvar->tab_haplo[ptrj->num_haplo_compl].sequence );
+						
 			ptrj = ptrj -> suivant;
 		}
 		printf("\n");
