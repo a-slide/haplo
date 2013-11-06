@@ -399,6 +399,10 @@ void haplotypes_possibles (char* geno_seq, T_info* pvar)
 			}
 		}
 	}
+	// Pour terminer proprement les chaines de charactères
+	for (k = 0; k < n ; k ++)
+		tab[k][j] = '\0';
+	// Retour par remplissage des variable de T_info var
 	pvar->tab_haplo_expl = tab;
 	pvar->nb_haplo_expl = n;
 	return;
