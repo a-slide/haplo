@@ -88,3 +88,4 @@ void extend_tab_haplo (char*, T_info*);
 void ajouter_diplo_a_geno (int, int, int, T_info*);
 void ajouter_geno_a_haplo (int, int, int, T_info*);
 void print_tab_haplo (T_info*);
+void print_tab_geno (T_info*);

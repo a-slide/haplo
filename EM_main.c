@@ -173,7 +173,8 @@ void preparer_liste_geno_haplo (T_info* pvar)
 		// Genere une liste des haplotypes explicatifs potentiels pour le genotype i
 		haplotypes_possibles (pvar->tab_geno[i].sequence, pvar);
 		//print_string_table (pvar->tab_haplo_expl, pvar->nb_haplo_expl); //  Verification des haplotypes générés
-	
+		pvar->tab_geno[i].nb_diplo_expl = pvar->nb_haplo_expl/2; // ajout du nbr de couple explivatifs à tab_geno 
+		
 		for (j = 0; j < pvar->nb_haplo_expl; j +=2 ) // Parcours des haplotypes explicatifs par paire complémentaire
 		{
 			// Ajout des haplotypes A et B d'une paire explicative à la liste des haplotypes si ils n'existent pas et retour de leur indice
@@ -197,9 +198,9 @@ void preparer_liste_geno_haplo (T_info* pvar)
 				i, pvar->tab_haplo[i].sequence, pvar->tab_haplo[i].nb_geno_expl);
 		
 	print_tab_haplo (pvar);
+	print_tab_geno (pvar);
 	return;
 }
- 
  
 ///** ajouter_tab_geno  ***********************************************/
 int ajouter_tab_geno (char* geno_seq, T_info* pvar)
@@ -261,7 +262,6 @@ int ajouter_tab_haplo (char* haplo_seq, T_info* pvar)
 	return i;
 }
 
-
 ///** init_tab_geno ***************************************************/
 void init_tab_geno (char* geno_seq, T_info* pvar)
 //char* geno_seq, T_geno** p_tab_geno
@@ -302,7 +302,6 @@ void init_tab_haplo (char* haplo_seq, T_info* pvar)
 	pvar->tab_haplo[0].queue = NULL;
 	return;
 }
-  
  
 ///** extend_tab_geno *************************************************/
 void extend_tab_geno (char* geno_seq, T_info* pvar)
@@ -319,6 +318,7 @@ void extend_tab_geno (char* geno_seq, T_info* pvar)
 	}
 	
 	pvar->tab_geno[n-1].sequence = geno_seq;
+	pvar->tab_geno[n-1].proba = 0;
 	pvar->tab_geno[n-1].nb_ind = 1;
 	pvar->tab_geno[n-1].nb_diplo_expl = 0;
 	pvar->tab_geno[n-1].tete = NULL;
@@ -405,8 +405,7 @@ void haplotypes_possibles (char* geno_seq, T_info* pvar)
 }
  
 /**** create_char_mat *************************************************/
- 
-char** create_char_mat (int col, int line)
+ char** create_char_mat (int col, int line)
 {
 	int i;
 	char** matrice;
@@ -481,6 +480,7 @@ void ajouter_diplo_a_geno (int num_haplo_A, int num_haplo_B, int num_geno, T_inf
 		fprintf (stderr, "Allocation impossible\n\n");
 		exit (EXIT_FAILURE);
 	}
+	
 	cellule -> num_haplo_A = num_haplo_A;
 	cellule -> num_haplo_B = num_haplo_B;
 	cellule -> suivant = NULL;
@@ -527,12 +527,14 @@ void ajouter_geno_a_haplo (int num_haplo_principal, int num_haplo_compl, int num
  
 /**** print_tab_haplo *************************************************/
 void print_tab_haplo (T_info* pvar)
-//int nb_haplo, T_haplo** p_tab_haplo, T_geno** tab_geno
 {
 	int i;
 	T_geno_expl* ptrj = NULL;
 	
-	printf("Liste non redondante des haplotypes et des genotypes expliqués\n\n");
+	printf("\n\n###############################################\n");
+	printf("\nListe Des haplotypes et des genotypes expliqués\n");
+	printf("\n###############################################\n\n");
+	
 	for (i = 0; i < pvar->nb_haplo; i++ )
 	{
 		ptrj = pvar->tab_haplo[i].tete;
@@ -556,3 +558,39 @@ void print_tab_haplo (T_info* pvar)
 		printf("\n");
 	}
 }
+
+/**** print_tab_geno *************************************************/
+void print_tab_geno (T_info* pvar)
+{
+	int i;
+	T_diplo_expl* ptrj = NULL;
+	
+	printf("\n\n#################################################\n");
+	printf("\nListe des genotypes et des diplotypes explicatifs\n");
+	printf("\n#################################################\n\n");
+	
+	for (i = 0; i < pvar->nb_geno; i++ )
+	{
+		ptrj = pvar->tab_geno[i].tete;
+		printf("Haplotype #%d\t Séquence : %s\t Probabilité %f\t Nombre d'individu(s) concerné(s) : %d\t Nombre de diplotype(s) explicatif(s) : %d\n",
+			i,
+			pvar->tab_geno[i].sequence,
+			pvar->tab_geno[i].proba,
+			pvar->tab_geno[i].nb_ind,
+			pvar->tab_geno[i].nb_diplo_expl);
+				
+		printf("Liste des diplotypes explicatifs\n");
+		while (ptrj)
+		{
+			printf("Haplotype # %d (%s) avec Haplotype # %d (%s)\n", 
+				ptrj->num_haplo_A,
+				pvar->tab_haplo[ptrj->num_haplo_A].sequence,
+				ptrj->num_haplo_B,
+				pvar->tab_haplo[ptrj->num_haplo_A].sequence );
+						
+			ptrj = ptrj -> suivant;
+		}
+		printf("\n");
+	}
+}
+
