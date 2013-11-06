@@ -239,7 +239,7 @@ int ajouter_tab_haplo (char* haplo_seq, T_info* pvar)
 	// Si la matrice est vide = ajout du premier haplotype
 	if (pvar->tab_haplo == NULL)
 	{ 
-		printf("Ajout du premier haplotype en position 0\n");
+		///printf("Ajout du premier haplotype en position 0\n");
 		pvar->nb_haplo = 1;
 		init_tab_haplo (haplo_seq, pvar);
 		return 0; // retour de la position 0
@@ -249,18 +249,17 @@ int ajouter_tab_haplo (char* haplo_seq, T_info* pvar)
 	{
 		if ( strcmp(pvar->tab_haplo[i].sequence, haplo_seq) == 0 ) // si chaines identiques
 		{
-			printf("L'haplotype existe déjà en position %d\n", i);
+			///printf("L'haplotype existe déjà en position %d\n", i);
 			pvar->tab_haplo[i].nb_geno_expl++;
 			return i; // retour de la position ou l'haplotype a été trouvé
 		}
 	}
 	// Sinon stockage de l'haplotype dans une nouvelle case à la suite du tableau
-	printf("Ajout d'un nouvel haplotype en position %d\n", i);
+	///printf("Ajout d'un nouvel haplotype en position %d\n", i);
 	pvar->nb_haplo = i+1;
 	extend_tab_haplo (haplo_seq, pvar);
 	return i;
 }
-
 
 
 ///** init_tab_geno ***************************************************/
@@ -303,8 +302,7 @@ void init_tab_haplo (char* haplo_seq, T_info* pvar)
 	pvar->tab_haplo[0].queue = NULL;
 	return;
 }
- 
- 
+  
  
 ///** extend_tab_geno *************************************************/
 void extend_tab_geno (char* geno_seq, T_info* pvar)
