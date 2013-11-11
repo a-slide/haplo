@@ -10,34 +10,34 @@ CFLAGS = -g -Wall -W -Wno-unused-parameter -lm
 LDFLAGS = 
 	# Options d'edition de lien
 
-BIN = EM_Haplotype_inference
+BIN = EM_main
 	# Nom des executables a creer
-
-SRC = $(wildcard *.c)
-	# Liste automatique des fichiers sources
 	
 OBJ = $(SRC:.c=.o)
 	# Liste automatique des fichiers objects
 
-HEAD = $(SRC:.c=.h)
-	# Liste automatique des fichiers headers
 
 #################### INSTRUCTIONS DE COMPILATION #######################
-# $@ =  Cible # $^ = liste des dépendances # $< Première dépendance #
+
 
 all: $(BIN)
 	# Ensemble des executables à produire
 
-EM_Haplotype_inference: $(OBJ)
-	$(CC) $^ $(LDFLAGS) -o $@
+EM_main: EM_main.o importation_genotypes.o preparer_liste_geno_haplo.o
+	$(CC) -o EM_main EM_main.o importation_genotypes.o preparer_liste_geno_haplo.o $(CFLAGS)
 	# Edition de lien a partir des fichiers objets
 
-EM_main.o: $(HEAD) EM_structures.h
-	# Si un des headers a changé alors recompiler EM_main.o
-	
-%.o: %.c %.h
-	$(CC) -c $< $(CFLAGS) -o $@ 
-	# Règle générique de compilation de tt les sources en objets	
+EM_main.o: EM_main.c
+	$(CC) -o EM_main.o -c EM_main.c $(CFLAGS)
+	# Création du fichier binaire EM_main.o 
+
+importation_genotypes.o: importation_genotypes.c EM_main.h
+	$(CC) -o importation_genotypes.o -c importation_genotypes.c $(CFLAGS)
+	# Création du fichier binaire importation_genotypes.o 
+
+preparer_liste_geno_haplo.o: preparer_liste_geno_haplo.c EM_main.h
+	$(CC) -o preparer_liste_geno_haplo.o -c preparer_liste_geno_haplo.c $(CFLAGS)
+	# Création du fichier binaire preparer_liste_geno_haplo.o 
 
 ##################### INSTRUCTIONS DE NETTOYAGE ########################
 
