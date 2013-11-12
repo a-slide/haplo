@@ -1,14 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
 #include "EM_main.h"
-
-
-////////////////////////////////////////////////////////////////////////
-// preparer_liste_geno_haplo.c
-////////////////////////////////////////////////////////////////////////
  
 /**** preparer_liste_geno_haplo ***************************************/
 // T_individu* tab_individus, int taille, int nb_individus, T_geno** p_tab_geno, T_haplo** p_tab_haplo
@@ -23,7 +17,7 @@ void preparer_liste_geno_haplo (T_info* pvar)
 	for (i = 0 ; i < pvar->nb_ind; i++)
 	{
 		num_geno = ajouter_tab_geno (pvar->tab_individus[i].sequence, pvar);
-		printf("Individu #%d\t Genotype %d\n",i, num_geno);
+		printf("Individu #%d\tSequence: %s\tGenotype %d\n",i, pvar->tab_individus[i].sequence, num_geno);
 		//ajouter_geno_a_individu (i, pvar);
 	}	
 	printf("\nListe non redondante de genotypes\n");
@@ -440,7 +434,7 @@ void print_tab_geno (T_info* pvar)
 	for (i = 0; i < pvar->nb_geno; i++ )
 	{
 		ptrj = pvar->tab_geno[i].tete;
-		printf("Haplotype #%d\t Séquence : %s\t Probabilité %f\t Nombre d'individu(s) concerné(s) : %d\t Nombre de diplotype(s) explicatif(s) : %d\n",
+		printf("Genotype #%d\t Séquence : %s\t Probabilité %f\t Nombre d'individu(s) concerné(s) : %d\t Nombre de diplotype(s) explicatif(s) : %d\n",
 			i,
 			pvar->tab_geno[i].sequence,
 			pvar->tab_geno[i].proba,
