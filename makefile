@@ -19,7 +19,7 @@ BIN = EM_main
 
 all: $(BIN)
 	
-EM_main: EM_main.o importation_genotypes.o preparer_liste_geno_haplo.o
+EM_main: EM_main.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o
 	$(CC) $^ $(LDFLAGS) -o $@
 	# Edition de lien a partir des fichiers objets
 
@@ -31,9 +31,13 @@ importation_genotypes.o: importation_genotypes.c EM_main.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de importation_genotypes.c
 
-preparer_liste_geno_haplo.o: preparer_liste_geno_haplo.c EM_main.h
+preparation_liste_geno_haplo.o: preparation_liste_geno_haplo.c EM_main.h
 	$(CC) $< $(CFLAGS) -o $@
-	# Compilation de preparer_liste_geno_haplo.c
+	# Compilation de preparation_liste_geno_haplo.c
+
+initialisation_freq_proba.o: initialisation_freq_proba.c EM_main.h
+	$(CC) $< $(CFLAGS) -o $@
+	# Compilation de initialisation_freq_proba.c
 
 ##################### INSTRUCTIONS DE NETTOYAGE ########################
 
@@ -41,7 +45,7 @@ preparer_liste_geno_haplo.o: preparer_liste_geno_haplo.c EM_main.h
 	# PHONY = Dependances systematiquement reconstruites
 
 clean:
-	rm -rf EM_main.o importation_genotypes.o preparer_liste_geno_haplo.o
+	rm -rf EM_main.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o
 	# Supprimer tous les fichiers intermédiaires
 
 mrproper: clean

@@ -57,13 +57,11 @@ struct info
 	char** tab_haplo_expl;
 };
 
- 
 // Dans main
 void usage (char*);
 void importation_genotypes(char*, T_info*);
-void preparer_liste_geno_haplo (T_info*);
-///initialiser_frequence_haplotype;
-///calculer_frequence_genotype;
+void preparation_liste_geno_haplo (T_info*);
+void initialisation_freq_proba (T_info*, char);
 ///expectation;
 ///maximisation;
 
@@ -72,11 +70,10 @@ FILE* init_file_ptr (char*, char*);
 int nb_ligne (FILE*);
 int nb_char (FILE*);
 
-// Dans preparer_liste_geno_haplo
+// Dans preparation_liste_geno_haplo
 int ajouter_tab_geno (char*, T_info*);
 void init_tab_geno (char*, T_info*);
 void extend_tab_geno (char*, T_info*);
-///void ajouter_geno_a_individu (int, T_info*);
 void haplotypes_possibles (char*, T_info*);
 char** create_char_mat (int, int);
 void liberer_char_mat (char**, int);
@@ -87,5 +84,9 @@ void init_tab_haplo (char*, T_info*);
 void extend_tab_haplo (char*, T_info*);
 void ajouter_diplo_a_geno (int, int, int, T_info*);
 void ajouter_geno_a_haplo (int, int, int, T_info*);
+
+// Dans initialisation_freq_proba
+void init_haplo_equi_freq (T_info*);
+void haplo_random_freq (T_info*);
 void print_tab_haplo (T_info*);
 void print_tab_geno (T_info*);

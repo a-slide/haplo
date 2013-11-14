@@ -7,38 +7,38 @@
 int main(int argc, char** argv)
 {
 	/* Arguments demandés en entrée :
-	- Identificateur du fichier contenant les genotypes (string)
-	- Nombre d'itérations de EM maximum (int)
-	- Seuil de convergence (float) */
+	 * 1 = Identificateur du fichier contenant les genotypes (string)
+	 * 2 = Mode d'initialisation des fréquences d'haplotypes (A)léatoire ou (E)qui-probable
+	 * 3 = Nombre d'itérations de EM maximum (int)
+	 * 4 = Seuil de convergence (float)
+	 */
 	
 	/******** Declaration des variables *********/
-	//int nb_iterations;
-	//int seuil;
-	char* genotype_file;
+	///int nb_iterations;
+	///int seuil
+	T_info var;
 	
-	// Declaration de la structure T_info var et initialisation des pointeurs à NULL
-	T_info var = { .tab_individus = NULL, .tab_geno = NULL, .tab_haplo = NULL };
-		
 	/******** Test d'usage *********/
-	if (argc != 2) usage(argv[0]); // Affiche usage et sort si nombre de paramètres incorect
+	// Affiche usage et sort si nombre de paramètres incorect
+	if (argc != 3) usage(argv[0]);
 	
 	/******** Initialisation des variables *********/
-	genotype_file = argv[1];
-	//nb_iterations = atoi (argv[2]);
-	//seuil = atoi (argv[3]);
+	///nb_iterations = atoi (argv[3]);
+	///seuil = atoi (argv[4]);
+	var.tab_individus = NULL;
+	var.tab_geno = NULL;
+	var.tab_haplo = NULL;
 	
 	/******** Importation et initialisation des données *********/
-	importation_genotypes (genotype_file, &var);
-	preparer_liste_geno_haplo (&var);
-	//initialiser_frequence_haplotype
-	//calculer_frequence_genotype
+	importation_genotypes (argv[1], &var);
+	preparation_liste_geno_haplo (&var);
+	initialisation_freq_proba (&var, argv[2][0]);
 	
 	/******** Expectation Maximisation *********/
 	
 	return 0;
 }
 	/*
-	calculer_frequence_génotype
 	Convergence = faux
 	nbr_etapes = 0
 	Vraisemblance_prec = VALEUR_MIN // valeur min est la plus petite valeur gérer par l'ordinateur
@@ -59,7 +59,14 @@ int main(int argc, char** argv)
  
 void usage (char* prog_name)
 {
-	fprintf (stderr, "\nUsage:\t%s [fichier_contenant_genotypes] [nombre_iterations] [seuil_de_convergence]\n\n", prog_name);
+	fprintf (stderr, "\nUsage:\t%s [fichier__genotypes] [mode_init] [nb_iterations] [seuil_convergence]\n\n", prog_name);
+	fprintf (stderr, "\t[fichier__genotypes] (string)\n");
+	fprintf (stderr, "\tListe de genotype pour une serie d'individus. Valeur max conseillée = ???\n\n");
+	fprintf (stderr, "\t[mode_init] (char)\n");
+	fprintf (stderr, "\tMode d'initialisation des fréquences d'haplotypes (A)léatoire ou (E)qui-probable\n\n");
+	fprintf (stderr, "\t[nb_iterations] (int)\n");
+	fprintf (stderr, "\tNombre d'iteration de la boucle EM. Valeur max conseillée = ???\n\n");
+	fprintf (stderr, "\t[seuil_convergence] (float)\n");
+	fprintf (stderr, "\tCondition de sortie de boucle EM si convergence atteinte. Valeur max conseillée = ???\n\n");
 	exit (EXIT_FAILURE);
 }
-
