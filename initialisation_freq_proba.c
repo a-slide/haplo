@@ -28,7 +28,7 @@ void init_haplo_equi_freq (T_info* pvar)
 {
 	int i;
 	
-	printf ("\nInitialisation equi-probable des frequences des haplotypes\n\n");
+	printf ("\n\nINITIALISATION EQUI-PROBABLE DES FREQUENCES DES HAPLOTYPES\n");
 	for (i = 0; i < pvar->nb_haplo; i++)
 		pvar->tab_haplo[i].frequence = 1.0/ pvar->nb_haplo;
 
@@ -41,7 +41,7 @@ void haplo_random_freq (T_info* pvar)
 	int sum = 0;
 	srand (time(NULL)); // seed value pour rand
 	
-	printf ("\nInitialisation aleatoire des frequences des haplotypes\n\n");
+	printf ("\n\nINITIALISATION ALEATOIRE DES FREQUENCES DES HAPLOTYPES\n");
 	for (i = 0; i < pvar->nb_haplo; i++)
 	{
 		pvar->tab_haplo[i].frequence = rand() % 100 + 1;
