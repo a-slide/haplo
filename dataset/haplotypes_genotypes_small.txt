@@ -1,0 +1,200 @@
+Genotype 0 :	1220212122
+Haplotype 4 :	1110101111
+Haplotype 2 :	0110111011
+
+Genotype 1 :	2210101222
+Haplotype 4 :	1110101111
+Haplotype 9 :	1100000111
+
+Genotype 2 :	2210101222
+Haplotype 9 :	1100000111
+Haplotype 4 :	1110101111
+
+Genotype 3 :	1221202212
+Haplotype 4 :	1110101111
+Haplotype 3 :	0111101101
+
+Genotype 4 :	1221202212
+Haplotype 4 :	1110101111
+Haplotype 3 :	0111101101
+
+Genotype 5 :	1221202212
+Haplotype 4 :	1110101111
+Haplotype 3 :	0111101101
+
+Genotype 6 :	2220102222
+Haplotype 4 :	1110101111
+Haplotype 6 :	1110001111
+
+Genotype 7 :	2110012222
+Haplotype 6 :	1110001111
+Haplotype 11 :	1000011111
+
+Genotype 8 :	2210001222
+Haplotype 6 :	1110001111
+Haplotype 9 :	1100000111
+
+Genotype 9 :	2100011222
+Haplotype 9 :	1100000111
+Haplotype 11 :	1000011111
+
+Genotype 10 :	2100011222
+Haplotype 9 :	1100000111
+Haplotype 11 :	1000011111
+
+Genotype 11 :	2100011222
+Haplotype 11 :	1000011111
+Haplotype 9 :	1100000111
+
+Genotype 12 :	2100011222
+Haplotype 11 :	1000011111
+Haplotype 9 :	1100000111
+
+Genotype 13 :	2210001222
+Haplotype 9 :	1100000111
+Haplotype 6 :	1110001111
+
+Genotype 14 :	2100011222
+Haplotype 9 :	1100000111
+Haplotype 11 :	1000011111
+
+Genotype 15 :	2210001222
+Haplotype 9 :	1100000111
+Haplotype 6 :	1110001111
+
+Genotype 16 :	2110012222
+Haplotype 6 :	1110001111
+Haplotype 11 :	1000011111
+
+Genotype 17 :	2210001222
+Haplotype 6 :	1110001111
+Haplotype 9 :	1100000111
+
+Genotype 18 :	2210001222
+Haplotype 6 :	1110001111
+Haplotype 9 :	1100000111
+
+Genotype 19 :	2100011222
+Haplotype 9 :	1100000111
+Haplotype 11 :	1000011111
+
+Genotype 20 :	2100011222
+Haplotype 11 :	1000011111
+Haplotype 9 :	1100000111
+
+Genotype 21 :	2210101222
+Haplotype 9 :	1100000111
+Haplotype 4 :	1110101111
+
+Genotype 22 :	1220212122
+Haplotype 4 :	1110101111
+Haplotype 2 :	0110111011
+
+Genotype 23 :	2210101222
+Haplotype 4 :	1110101111
+Haplotype 9 :	1100000111
+
+Genotype 24 :	2210101222
+Haplotype 4 :	1110101111
+Haplotype 9 :	1100000111
+
+Genotype 25 :	2120201212
+Haplotype 4 :	1110101111
+Haplotype 8 :	1010100101
+
+Genotype 26 :	2210101222
+Haplotype 4 :	1110101111
+Haplotype 9 :	1100000111
+
+Genotype 27 :	1220212122
+Haplotype 4 :	1110101111
+Haplotype 2 :	0110111011
+
+Genotype 28 :	1221202212
+Haplotype 4 :	1110101111
+Haplotype 3 :	0111101101
+
+Genotype 29 :	2220102222
+Haplotype 4 :	1110101111
+Haplotype 6 :	1110001111
+
+Genotype 30 :	2220102222
+Haplotype 4 :	1110101111
+Haplotype 6 :	1110001111
+
+Genotype 31 :	2120201212
+Haplotype 4 :	1110101111
+Haplotype 8 :	1010100101
+
+Genotype 32 :	1221202212
+Haplotype 4 :	1110101111
+Haplotype 3 :	0111101101
+
+Genotype 33 :	2120201212
+Haplotype 4 :	1110101111
+Haplotype 8 :	1010100101
+
+Genotype 34 :	2210101222
+Haplotype 4 :	1110101111
+Haplotype 9 :	1100000111
+
+Genotype 35 :	2210101222
+Haplotype 4 :	1110101111
+Haplotype 9 :	1100000111
+
+Genotype 36 :	2210001222
+Haplotype 9 :	1100000111
+Haplotype 6 :	1110001111
+
+Genotype 37 :	2210101222
+Haplotype 9 :	1100000111
+Haplotype 4 :	1110101111
+
+Genotype 38 :	2100011222
+Haplotype 9 :	1100000111
+Haplotype 11 :	1000011111
+
+Genotype 39 :	2100011222
+Haplotype 11 :	1000011111
+Haplotype 9 :	1100000111
+
+Genotype 40 :	2210101222
+Haplotype 9 :	1100000111
+Haplotype 4 :	1110101111
+
+Genotype 41 :	1220212122
+Haplotype 4 :	1110101111
+Haplotype 2 :	0110111011
+
+Genotype 42 :	1221202212
+Haplotype 4 :	1110101111
+Haplotype 3 :	0111101101
+
+Genotype 43 :	1221202212
+Haplotype 4 :	1110101111
+Haplotype 3 :	0111101101
+
+Genotype 44 :	2220102222
+Haplotype 4 :	1110101111
+Haplotype 6 :	1110001111
+
+Genotype 45 :	2120201212
+Haplotype 4 :	1110101111
+Haplotype 8 :	1010100101
+
+Genotype 46 :	2120201212
+Haplotype 4 :	1110101111
+Haplotype 8 :	1010100101
+
+Genotype 47 :	1220212122
+Haplotype 4 :	1110101111
+Haplotype 2 :	0110111011
+
+Genotype 48 :	1220212122
+Haplotype 2 :	0110111011
+Haplotype 4 :	1110101111
+
+Genotype 49 :	2220102222
+Haplotype 4 :	1110101111
+Haplotype 6 :	1110001111
+
