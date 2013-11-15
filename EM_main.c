@@ -4,18 +4,20 @@
 #include <string.h>
 #include "EM_main.h"
  
+ /***********************************************************************
+ * MAIN
+ **********************************************************************/
 int main(int argc, char** argv)
-{
 	/* Arguments demandés en entrée :
 	 * 1 = Identificateur du fichier contenant les genotypes (string)
 	 * 2 = Mode d'initialisation des fréquences d'haplotypes (A)léatoire ou (E)qui-probable
 	 * 3 = Nombre d'itérations de EM maximum (int)
-	 * 4 = Seuil de convergence (double)
-	 */
-	
+	 * 4 = Seuil de convergence (double) */
+	 
+	{
 	/******** Declaration des variables *********/
 	///int nb_iterations;
-	///int seuil
+	///int seuil;
 	T_info var;
 	
 	/******** Test d'usage *********/
