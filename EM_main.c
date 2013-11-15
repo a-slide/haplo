@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 	 * 1 = Identificateur du fichier contenant les genotypes (string)
 	 * 2 = Mode d'initialisation des fréquences d'haplotypes (A)léatoire ou (E)qui-probable
 	 * 3 = Nombre d'itérations de EM maximum (int)
-	 * 4 = Seuil de convergence (float)
+	 * 4 = Seuil de convergence (double)
 	 */
 	
 	/******** Declaration des variables *********/
@@ -66,7 +66,7 @@ void usage (char* prog_name)
 	fprintf (stderr, "\tMode d'initialisation des fréquences d'haplotypes (A)léatoire ou (E)qui-probable\n\n");
 	fprintf (stderr, "\t[nb_iterations] (int)\n");
 	fprintf (stderr, "\tNombre d'iteration de la boucle EM. Valeur max conseillée = ???\n\n");
-	fprintf (stderr, "\t[seuil_convergence] (float)\n");
+	fprintf (stderr, "\t[seuil_convergence] (double)\n");
 	fprintf (stderr, "\tCondition de sortie de boucle EM si convergence atteinte. Valeur max conseillée = ???\n\n");
 	exit (EXIT_FAILURE);
 }

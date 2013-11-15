@@ -4,26 +4,29 @@
 #include <time.h>
 #include "EM_main.h"
 
-/***** initialisation_freq_proba ******************************************/
+/***********************************************************************
+ * initialisation_freq_proba
+ **********************************************************************/
 
 void initialisation_freq_proba (T_info* pvar, char mode)
 {
 	if ((mode == 'A') || (mode == 'a'))
 		haplo_random_freq (pvar);
-	
-	else
+	else // si autre char entré en paramètre
 		init_haplo_equi_freq (pvar);
 	
 	print_tab_haplo (pvar);
 	
-	
-	///	init_geno_proba (pvar);
-	
+	init_geno_proba (pvar);
 	print_tab_geno (pvar);
 	
 	return;
 }
 
+/***********************************************************************
+ * init_haplo_equi_freq
+ **********************************************************************/
+ 
 void init_haplo_equi_freq (T_info* pvar)
 {
 	int i;
@@ -35,6 +38,10 @@ void init_haplo_equi_freq (T_info* pvar)
 	return;
 }
 
+/***********************************************************************
+ * haplo_random_freq
+ **********************************************************************/
+ 
 void haplo_random_freq (T_info* pvar)
 {
 	int i;
@@ -44,19 +51,60 @@ void haplo_random_freq (T_info* pvar)
 	printf ("\n\nINITIALISATION ALEATOIRE DES FREQUENCES DES HAPLOTYPES\n");
 	for (i = 0; i < pvar->nb_haplo; i++)
 	{
-		pvar->tab_haplo[i].frequence = rand() % 100 + 1;
+		pvar->tab_haplo[i].frequence = rand() % 100 + 1; // initialalisation aléatoire entre 1 et 100
 		sum = sum + pvar->tab_haplo[i].frequence;
 	}
 
 	for (i = 0; i < pvar->nb_haplo; i++)
-		pvar->tab_haplo[i].frequence = pvar->tab_haplo[i].frequence / sum;
+		pvar->tab_haplo[i].frequence = pvar->tab_haplo[i].frequence / sum; // transformation du pourcentage en fréquence
 
 	return;
 }
 
-
+/***********************************************************************
+ * init_geno_proba
+ **********************************************************************/
  
-/**** print_tab_haplo *************************************************/
+void init_geno_proba (T_info* pvar)
+{
+	int i; // boucle de deplacement dans le tableau
+	double f1, f2;
+	T_diplo_expl* ptrj = NULL;
+	
+	printf ("\n\nCALCUL DE LA PROBABILTE DE CHAQUE GENOTYPE\n");
+	
+	for (i = 0; i < pvar->nb_geno; i++ )
+	{
+		ptrj = pvar->tab_geno[i].tete;
+		
+		printf ("\nProbabilites partielles de geno %d", i);
+		while (ptrj != NULL) // parcourt la liste de diplo explicatifs jusqu'à la fin
+		{
+			if (ptrj->num_haplo_A == ptrj->num_haplo_B) // Si Haplo A et Haplo B sont les mêmes
+			{
+				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence; // frequence de l'haplotype A
+				pvar->tab_geno[i].proba += (f1*f1); // mise à jour de la probabilité du genome i
+			}
+			else
+			{	
+				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence; // frequence de l'haplotype A
+				f2 = pvar->tab_haplo [ptrj->num_haplo_B].frequence; // frequence de l'haplotype A
+				pvar->tab_geno[i].proba += (2*f1*f2); //  mise à jour de la probabilité du genome i A VERIFIER
+			}
+			printf (" -> %.2e", pvar->tab_geno[i].proba);
+			
+			ptrj = ptrj -> suivant;
+		}
+		printf ("\nProbabilite finale de geno %d = %.2e\n\n", i, pvar->tab_geno[i].proba);
+	}
+	return;
+}
+
+
+/***********************************************************************
+ * print_tab_haplo
+ **********************************************************************/
+
 void print_tab_haplo (T_info* pvar)
 {
 	int i;
@@ -69,14 +117,14 @@ void print_tab_haplo (T_info* pvar)
 	for (i = 0; i < pvar->nb_haplo; i++ )
 	{
 		ptrj = pvar->tab_haplo[i].tete;
-		printf("Haplotype #%d \t Séquence : %s \t Fréquence %f \t Nombre de genotype(s) expliqué(s) : %d \n",
+		printf("Haplotype #%d \t Séquence : %s \t Fréquence %.2e \t Nombre de genotype(s) expliqué(s) : %d \n",
 			i,
 			pvar->tab_haplo[i].sequence,
 			pvar->tab_haplo[i].frequence,
 			pvar->tab_haplo[i].nb_geno_expl);
 			
 		printf("Liste des génotypes expliqués\n");
-		while (ptrj)
+		while (ptrj != NULL)
 		{
 			printf("Genotype # %d (%s) avec Haplotype # %d (%s)\n", 
 				ptrj -> num_geno_expl,
@@ -90,7 +138,10 @@ void print_tab_haplo (T_info* pvar)
 	}
 }
 
-/**** print_tab_geno *************************************************/
+/***********************************************************************
+ * print_tab_geno
+ **********************************************************************/
+ 
 void print_tab_geno (T_info* pvar)
 {
 	int i;
@@ -103,7 +154,7 @@ void print_tab_geno (T_info* pvar)
 	for (i = 0; i < pvar->nb_geno; i++ )
 	{
 		ptrj = pvar->tab_geno[i].tete;
-		printf("Genotype #%d\t Séquence : %s\t Probabilité %f\t Nombre d'individu(s) concerné(s) : %d\t Nombre de diplotype(s) explicatif(s) : %d\n",
+		printf("Genotype #%d\t Séquence : %s\t Probabilité %.2e\t Nombre d'individu(s) concerné(s) : %d\t Nombre de diplotype(s) explicatif(s) : %d\n",
 			i,
 			pvar->tab_geno[i].sequence,
 			pvar->tab_geno[i].proba,
@@ -111,7 +162,7 @@ void print_tab_geno (T_info* pvar)
 			pvar->tab_geno[i].nb_diplo_expl);
 				
 		printf("Liste des diplotypes explicatifs\n");
-		while (ptrj)
+		while (ptrj != NULL)
 		{
 			printf("Haplotype # %d (%s) avec Haplotype # %d (%s)\n", 
 				ptrj->num_haplo_A,

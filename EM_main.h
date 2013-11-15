@@ -1,3 +1,7 @@
+/***********************************************************************
+ * STRUCTURES
+ **********************************************************************/
+
 typedef struct individu T_individu;
 struct individu
 {
@@ -17,7 +21,7 @@ typedef struct geno T_geno;// tête de liste de type T_diplo_expl
 struct geno
 {
 	char* sequence;
-	float proba;
+	double proba;
 	int nb_ind; // compteur d'individus avec ce genotype
 	int nb_diplo_expl; // compteur de diplotype explicatifs
 	T_diplo_expl* tete;
@@ -36,7 +40,7 @@ typedef struct haplo T_haplo;// tête de liste de type T_geno_expl
 struct haplo
 {
 	char* sequence;
-	float frequence;
+	double frequence;
 	int nb_geno_expl;
 	int nb_haplo;
 	T_geno_expl* tete;
@@ -56,6 +60,10 @@ struct info
 	T_haplo* tab_haplo;
 	char** tab_haplo_expl;
 };
+
+/***********************************************************************
+ * PROTOTYPES
+ **********************************************************************/
 
 // Dans main
 void usage (char*);
@@ -88,5 +96,6 @@ void ajouter_geno_a_haplo (int, int, int, T_info*);
 // Dans initialisation_freq_proba
 void init_haplo_equi_freq (T_info*);
 void haplo_random_freq (T_info*);
+void init_geno_proba (T_info*);
 void print_tab_haplo (T_info*);
 void print_tab_geno (T_info*);
