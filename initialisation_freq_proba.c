@@ -33,7 +33,7 @@ void init_haplo_equi_freq (T_info* pvar)
 	
 	printf ("\n\nINITIALISATION EQUI-PROBABLE DES FREQUENCES DES HAPLOTYPES\n");
 	for (i = 0; i < pvar->nb_haplo; i++)
-		pvar->tab_haplo[i].frequence = 1.0/ pvar->nb_haplo;
+		pvar->tab_haplo[i].frequence_prec = 1.0/ pvar->nb_haplo;
 
 	return;
 }
@@ -51,12 +51,12 @@ void haplo_random_freq (T_info* pvar)
 	printf ("\n\nINITIALISATION ALEATOIRE DES FREQUENCES DES HAPLOTYPES\n");
 	for (i = 0; i < pvar->nb_haplo; i++)
 	{
-		pvar->tab_haplo[i].frequence = rand() % 100 + 1; // initialalisation aléatoire entre 1 et 100
-		sum = sum + pvar->tab_haplo[i].frequence;
+		pvar->tab_haplo[i].frequence_prec = rand() % 100 + 1; // initialalisation aléatoire entre 1 et 100
+		sum = sum + pvar->tab_haplo[i].frequence_prec;
 	}
 
 	for (i = 0; i < pvar->nb_haplo; i++)
-		pvar->tab_haplo[i].frequence = pvar->tab_haplo[i].frequence / sum; // transformation du pourcentage en fréquence
+		pvar->tab_haplo[i].frequence_prec = pvar->tab_haplo[i].frequence_prec / sum; // transformation du pourcentage en fréquence
 
 	return;
 }
@@ -82,13 +82,13 @@ void init_geno_proba (T_info* pvar)
 		{
 			if (ptrj->num_haplo_A == ptrj->num_haplo_B) // Si Haplo A et Haplo B sont les mêmes
 			{
-				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence; // frequence de l'haplotype A
+				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence_prec; // frequence de l'haplotype A
 				pvar->tab_geno[i].proba += (f1*f1); // mise à jour de la probabilité du genome i
 			}
 			else
 			{	
-				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence; // frequence de l'haplotype A
-				f2 = pvar->tab_haplo [ptrj->num_haplo_B].frequence; // frequence de l'haplotype A
+				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence_prec; // frequence de l'haplotype A
+				f2 = pvar->tab_haplo [ptrj->num_haplo_B].frequence_prec; // frequence de l'haplotype A
 				pvar->tab_geno[i].proba += (2*f1*f2); //  mise à jour de la probabilité du genome i A VERIFIER
 			}
 			printf (" -> %.2e", pvar->tab_geno[i].proba);
@@ -120,7 +120,7 @@ void print_tab_haplo (T_info* pvar)
 		printf("Haplotype #%d \t Séquence : %s \t Fréquence %.2e \t Nombre de genotype(s) expliqué(s) : %d \n",
 			i,
 			pvar->tab_haplo[i].sequence,
-			pvar->tab_haplo[i].frequence,
+			pvar->tab_haplo[i].frequence_prec,
 			pvar->tab_haplo[i].nb_geno_expl);
 			
 		printf("Liste des génotypes expliqués\n");
@@ -168,7 +168,7 @@ void print_tab_geno (T_info* pvar)
 				ptrj->num_haplo_A,
 				pvar->tab_haplo[ptrj->num_haplo_A].sequence,
 				ptrj->num_haplo_B,
-				pvar->tab_haplo[ptrj->num_haplo_A].sequence );
+				pvar->tab_haplo[ptrj->num_haplo_B].sequence );
 						
 			ptrj = ptrj -> suivant;
 		}

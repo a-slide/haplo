@@ -41,6 +41,7 @@ struct haplo
 {
 	char* sequence;
 	double frequence;
+	double frequence_prec;
 	int nb_geno_expl;
 	int nb_haplo;
 	T_geno_expl* tete;
@@ -54,7 +55,7 @@ struct info
 	int nb_ind;
 	int nb_geno;
 	int nb_haplo;
-	int nb_haplo_expl;
+	int nb_haplo_expl;  //Plutot nombre géno explicatifs ?
 	T_individu* tab_individus;
 	T_geno* tab_geno;
 	T_haplo* tab_haplo;
@@ -99,3 +100,6 @@ void haplo_random_freq (T_info*);
 void init_geno_proba (T_info*);
 void print_tab_haplo (T_info*);
 void print_tab_geno (T_info*);
+
+// Dans Maximisation
+void Maximisation (T_info*);

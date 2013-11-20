@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 	importation_genotypes (argv[1], &var);
 	preparation_liste_geno_haplo (&var);
 	initialisation_freq_proba (&var, argv[2][0]);
-	
+	Maximisation_et_Esperance (&var);
 	/******** Expectation Maximisation *********/
 	
 	return 0;
