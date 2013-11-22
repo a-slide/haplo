@@ -12,6 +12,8 @@ void Maximisation_et_Esperance(T_info* pvar)
 {
 
 Maximisation (pvar);
+pvar->vraisemblance=Estimation_Esperance (pvar);
+
 
 return;
 }
@@ -46,7 +48,7 @@ double contrib;
 			{
 			// Calcul de la contribution
 			contrib=((2*pvar->tab_haplo[i].frequence_prec*pvar->tab_haplo[i].frequence_prec)/
-			(pvar->tab_geno[ptrj->num_geno_expl].proba))*(pvar->tab_geno[ptrj->num_geno_expl].nb_ind/(float)pvar->nb_ind);
+			(pvar->tab_geno[ptrj->num_geno_expl].proba_prec))*(pvar->tab_geno[ptrj->num_geno_expl].nb_ind/(float)pvar->nb_ind);
 
 			
 			printf("contribution=%.2e\n", contrib);
@@ -54,13 +56,9 @@ double contrib;
 			}
 			else //cas hétérozygothie
 			{
-			//Grosse question: la fréquence de la séquence complémentaire, doit elle être la même que la séquence courante ?(vu qu'avec 				l'option -E toutes les fréquences sont les mêmes) ou bien on autorise la fréquence complémentaire a avoir été mise à 				jour ?	(vu que la fréquence de l'haplotype courant peut se trouver être une séquence complémentaire d'un autre haplotype 				plus tard dans la boucle for.
-			//Pour l'instant je considère la première proposition mais dans ce cas je suis obligé de faire l'égalité suivante:
-			
-
 			// Calcul de la contribution
 			contrib=((2*pvar->tab_haplo[i].frequence_prec*pvar->tab_haplo[ptrj -> num_haplo_compl].frequence_prec)/
-			(pvar->tab_geno[ptrj->num_geno_expl].proba))*(pvar->tab_geno[ptrj->num_geno_expl].nb_ind/(float)pvar->nb_ind);
+			(pvar->tab_geno[ptrj->num_geno_expl].proba_prec))*(pvar->tab_geno[ptrj->num_geno_expl].nb_ind/(float)pvar->nb_ind);
 
 			//printf("freq=%.2e\n", freq);
 			printf("contribution=%.2e\n", contrib);
@@ -102,5 +100,96 @@ return;
 //	//	finpour
 //	//	freq = ½ freq
 //	finpour
+
+
+double Estimation_Esperance(T_info* pvar)
+{
+
+int i;
+double f1, f2, loglikelihood;
+T_diplo_expl* ptrj = NULL;
+loglikelihood = 0;
+
+for (i = 0; i < pvar->nb_geno; i++ )
+	{
+		pvar->tab_geno[i].proba = 0;
+		ptrj = pvar->tab_geno[i].tete;
+		
+		printf ("\nProbabilites partielles de geno %d", i);
+		while (ptrj != NULL) // parcourt la liste de diplo explicatifs jusqu'à la fin
+		{
+			if (ptrj->num_haplo_A == ptrj->num_haplo_B) // Si Haplo A et Haplo B sont les mêmes
+			{
+				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence; // frequence de l'haplotype A
+				pvar->tab_geno[i].proba += (f1*f1); // mise à jour de la probabilité du genome i
+			}
+			else
+			{	
+				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence; // frequence de l'haplotype A
+				f2 = pvar->tab_haplo [ptrj->num_haplo_B].frequence; // frequence de l'haplotype A
+				pvar->tab_geno[i].proba += (2*f1*f2); //  mise à jour de la probabilité du genome i A VERIFIER
+			}
+			
+			printf (" -> %.2e", pvar->tab_geno[i].proba);
+			ptrj = ptrj -> suivant;
+		}
+		printf ("\nProbabilite finale de geno %d = %.2e\n", i, pvar->tab_geno[i].proba);
+		loglikelihood = loglikelihood + (pvar->tab_geno[i].nb_ind) * log(pvar->tab_geno[i].proba); // A revoir car pas sûr
+		printf("loglikelihood calculé lors de ce génotype: %.2e\n\n", loglikelihood);
+	}
+	return loglikelihood;
+}
+
+//Précondition
+//Le calcul qui va avoir lieu concerne l'étape it
+//Les fréquences des haplotypes sont connues pour l'étape it-1
+//Ngeno est le nombre d'individus pour le génotype geno
+//Postcondition
+//Les probabilités des génotypes sont connues à l'étape it 
+//La vraisemblance des données a été calculée.
+
+//	loglikelyhood = 0 // accumulateur logarithmique de vraisemblance
+//	pour chaque genotype geno
+//	//	proba = 0
+//	//	pour chaque paires explicative (h1, h2) de geno
+//	//	//	p1 = freq (h1)
+//	//	//	p2 = freq (h2)
+//	//	//	si (h1 == h2)
+//	//	//	//	alors	ppart = p12
+//	//	//	//	sinon	ppart = 2.p1.p2
+//	//	//	finsi
+//	//	//	p = p+ppart	
+//	//	finpour
+		//postcondition: La probabilités du génotype geno vient d'être calculée	
+//	//	loglikelyhood =  loglikelyhood + Ngeno log (p) // accumule 
+//	finpour
+
+
+void Update_Hfreqpreq_Gprobaprec_vraisemblance_preq (T_info* pvar)
+{
+	int i;
+	printf("########################################################################################\n");
+	printf("######################## Mise à jour de freq_prec et proba_prec ########################\n");
+	printf("########################################################################################\n\n");
+
+
+	for (i = 0; i < pvar->nb_geno; i++ )
+	{
+		pvar->tab_geno[i].proba_prec = pvar->tab_geno[i].proba;
+		printf("nouvelle proba_prec du génotype #%d: %.2e\n", i, pvar->tab_geno[i].proba_prec);
+	}
+	
+	printf("\n\n");
+
+	for (i = 0; i < pvar->nb_haplo; i++ )
+	{
+		pvar->tab_haplo[i].frequence_prec = pvar->tab_haplo[i].frequence;
+		printf("nouvelle freq_prec de l'haplotype #%d: %.2e\n", i, pvar->tab_haplo[i].frequence_prec);
+	}
+	pvar->vraisemblance_prec=pvar->vraisemblance; // Mise à jour de la vraisemblance précédente qui prend la valeur de la vraisemblance 								courante
+	return;
+}
+
+
 
 
