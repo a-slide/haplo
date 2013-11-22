@@ -83,19 +83,19 @@ void init_geno_proba (T_info* pvar)
 			if (ptrj->num_haplo_A == ptrj->num_haplo_B) // Si Haplo A et Haplo B sont les mêmes
 			{
 				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence_prec; // frequence de l'haplotype A
-				pvar->tab_geno[i].proba += (f1*f1); // mise à jour de la probabilité du genome i
+				pvar->tab_geno[i].proba_prec += (f1*f1); // mise à jour de la probabilité du genome i
 			}
 			else
 			{	
 				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence_prec; // frequence de l'haplotype A
 				f2 = pvar->tab_haplo [ptrj->num_haplo_B].frequence_prec; // frequence de l'haplotype A
-				pvar->tab_geno[i].proba += (2*f1*f2); //  mise à jour de la probabilité du genome i A VERIFIER
+				pvar->tab_geno[i].proba_prec += (2*f1*f2); //  mise à jour de la probabilité du genome i A VERIFIER
 			}
-			printf (" -> %.2e", pvar->tab_geno[i].proba);
+			printf (" -> %.2e", pvar->tab_geno[i].proba_prec);
 			
 			ptrj = ptrj -> suivant;
 		}
-		printf ("\nProbabilite finale de geno %d = %.2e\n\n", i, pvar->tab_geno[i].proba);
+		printf ("\nProbabilite finale de geno %d = %.2e\n\n", i, pvar->tab_geno[i].proba_prec);
 	}
 	return;
 }
@@ -157,7 +157,7 @@ void print_tab_geno (T_info* pvar)
 		printf("Genotype #%d\t Séquence : %s\t Probabilité %.2e\t Nombre d'individu(s) concerné(s) : %d\t Nombre de diplotype(s) explicatif(s) : %d\n",
 			i,
 			pvar->tab_geno[i].sequence,
-			pvar->tab_geno[i].proba,
+			pvar->tab_geno[i].proba_prec,
 			pvar->tab_geno[i].nb_ind,
 			pvar->tab_geno[i].nb_diplo_expl);
 				
