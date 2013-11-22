@@ -16,26 +16,49 @@ int main(int argc, char** argv)
 	 
 	{
 	/******** Declaration des variables *********/
-	///int nb_iterations;
-	///int seuil;
+	int nb_iterations=1, nb_iterations_max;
+	float seuil;
 	T_info var;
+	double convergence=0, conv=0;
 	
 	/******** Test d'usage *********/
 	// Affiche usage et sort si nombre de paramètres incorect
-	if (argc != 3) usage(argv[0]);
+	if (argc != 5) usage(argv[0]);
 	
 	/******** Initialisation des variables *********/
-	///nb_iterations = atoi (argv[3]);
-	///seuil = atoi (argv[4]);
+	nb_iterations_max = atoi (argv[3]);
+	seuil = atof (argv[4]);
 	var.tab_individus = NULL;
 	var.tab_geno = NULL;
 	var.tab_haplo = NULL;
+	var.vraisemblance=0;
+	var.vraisemblance_prec=0;
 	
 	/******** Importation et initialisation des données *********/
 	importation_genotypes (argv[1], &var);
 	preparation_liste_geno_haplo (&var);
-	initialisation_freq_proba (&var, argv[2][0]);
-	Maximisation_et_Esperance (&var);
+	initialisation_freq_proba (&var, argv[2][0]);	
+
+	// Boucle while sur le nombre d'itérations_max, il faut encore intégrer le seuil
+	while (nb_iterations <= nb_iterations_max && convergence==0)
+	{
+		
+		Maximisation_et_Esperance (&var); // Maximisation et espérance
+		printf("vraisemblance = %.2e\nvraisemblance_prec = %.2e\n", var.vraisemblance, var.vraisemblance_prec);
+		
+		conv = (fabs(var.vraisemblance-var.vraisemblance_prec)/(var.vraisemblance_prec));
+		convergence = (conv <= seuil);
+		
+		printf("seuil = %.2e\n", seuil);
+		printf("valeur_convergence = %.2e\n", conv);
+		printf("valeur_convergence = %.2e\n\n", convergence);
+		printf("\n\n################################ Itération %d ################################\n\n", nb_iterations);
+		if (convergence==0)
+		Update_Hfreqpreq_Gprobaprec_vraisemblance_preq (&var); //Mise à jour des valeurs prec qui prennent les valeurs courantes
+
+		nb_iterations++;
+	}
+
 	/******** Expectation Maximisation *********/
 	
 	return 0;
