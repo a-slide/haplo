@@ -22,6 +22,7 @@ struct geno
 {
 	char* sequence;
 	double proba;
+	double proba_prec;
 	int nb_ind; // compteur d'individus avec ce genotype
 	int nb_diplo_expl; // compteur de diplotype explicatifs
 	T_diplo_expl* tete;
@@ -60,6 +61,8 @@ struct info
 	T_geno* tab_geno;
 	T_haplo* tab_haplo;
 	char** tab_haplo_expl;
+	double vraisemblance_prec;
+	double vraisemblance;
 };
 
 /***********************************************************************
@@ -71,6 +74,8 @@ void usage (char*);
 void importation_genotypes(char*, T_info*);
 void preparation_liste_geno_haplo (T_info*);
 void initialisation_freq_proba (T_info*, char);
+void Maximisation_et_Esperance(T_info*);
+
 ///expectation;
 ///maximisation;
 
@@ -103,3 +108,5 @@ void print_tab_geno (T_info*);
 
 // Dans Maximisation
 void Maximisation (T_info*);
+double Estimation_Esperance(T_info*);
+void Update_Hfreqpreq_Gprobaprec_vraisemblance_preq (T_info*);
