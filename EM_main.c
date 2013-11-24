@@ -39,27 +39,30 @@ int main(int argc, char** argv)
 	preparation_liste_geno_haplo (&var);
 	initialisation_freq_proba (&var, argv[2][0]);	
 
-	// Boucle while sur le nombre d'itérations_max, il faut encore intégrer le seuil
+	// Boucle s'éxécutant tant que le nombre d'itération entré en paramètre n'est pas atteind et tant qu'il n'y a pas de convergence
 	while (nb_iterations <= nb_iterations_max && convergence==0)
 	{
 		
-		Maximisation_et_Esperance (&var); // Maximisation et espérance
-		printf("vraisemblance = %.2e\nvraisemblance_prec = %.2e\n", var.vraisemblance, var.vraisemblance_prec);
-		
+		Maximisation_et_Esperance (&var); // Calcule de la fréquence de chaque haplotype et de la proba de chaque génotype pour 							l'itération en cours
+
+		printf("vraisemblance = %.9e\nvraisemblance_prec = %.9e\n", var.vraisemblance, var.vraisemblance_prec);
+		// Calcule de la valeur de la convergence
 		conv = (fabs(var.vraisemblance-var.vraisemblance_prec)/(var.vraisemblance_prec));
+		// Test pour voir si la valeur de la convergence est inférieur ou égale au seuil entré en paramètre. Renvoie 1 ou 0
 		convergence = (conv <= seuil);
 		
 		printf("seuil = %.2e\n", seuil);
 		printf("valeur_convergence = %.2e\n", conv);
 		printf("valeur_convergence = %.2e\n\n", convergence);
 		printf("\n\n################################ Itération %d ################################\n\n", nb_iterations);
+	
+		// Si il n'y a pas convergence, on met à jour les fréquences à l'itération précedente des haplotypes et les probabilités à 			l'itération précédente des génotypes pour qu'elles prennent les nouvelles valeurs de fréquences et de probabilités calculées dans 			la fonction "Maximisation_et_Esperance"
 		if (convergence==0)
-		Update_Hfreqpreq_Gprobaprec_vraisemblance_preq (&var); //Mise à jour des valeurs prec qui prennent les valeurs courantes
-
+		{Update_Hfreqpreq_Gprobaprec_vraisemblance_preq (&var);} //Mise à jour des valeurs prec qui prennent les valeurs courantes
+		
+		// On incrémente l'itération pour passer à l'itération suivante
 		nb_iterations++;
 	}
-
-	/******** Expectation Maximisation *********/
 	
 	return 0;
 }
@@ -91,7 +94,7 @@ void usage (char* prog_name)
 	fprintf (stderr, "\tMode d'initialisation des fréquences d'haplotypes (A)léatoire ou (E)qui-probable\n\n");
 	fprintf (stderr, "\t[nb_iterations] (int)\n");
 	fprintf (stderr, "\tNombre d'iteration de la boucle EM. Valeur max conseillée = ???\n\n");
-	fprintf (stderr, "\t[seuil_convergence] (double)\n");
+	fprintf (stderr, "\t[seuil_convergence] (double). Valeur conseillée < (-0.177)\n");
 	fprintf (stderr, "\tCondition de sortie de boucle EM si convergence atteinte. Valeur max conseillée = ???\n\n");
 	exit (EXIT_FAILURE);
 }
