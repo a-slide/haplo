@@ -16,10 +16,10 @@ int main(int argc, char** argv)
 	 
 	{
 	/******** Declaration des variables *********/
-	int nb_iterations=1, nb_iterations_max;
-	float seuil;
+	int nb_iterations = 1, nb_iterations_max;
+	double seuil;
 	T_info var;
-	double convergence=0, conv=0;
+	double convergence = 0, conv = 0;
 	
 	/******** Test d'usage *********/
 	// Affiche usage et sort si nombre de paramètres incorect
@@ -31,19 +31,32 @@ int main(int argc, char** argv)
 	var.tab_individus = NULL;
 	var.tab_geno = NULL;
 	var.tab_haplo = NULL;
-	var.vraisemblance=0;
-	var.vraisemblance_prec=0;
+	var.vraisemblance = 0;
+	var.vraisemblance_prec = 0;
 	
 	/******** Importation et initialisation des données *********/
+	printf("\n##############################################################################\n");
+	printf("# IMPORTATION ET PREPARATION DES DONNES \n");
+	printf("##############################################################################\n");
 	importation_genotypes (argv[1], &var);
 	preparation_liste_geno_haplo (&var);
+	printf("\n##############################################################################\n");
+	printf("# INITIALIZATION\n");
+	printf("##############################################################################\n");
 	initialisation_freq_proba (&var, argv[2][0]);	
-
-	// Boucle s'éxécutant tant que le nombre d'itération entré en paramètre n'est pas atteind et tant qu'il n'y a pas de convergence
-	while (nb_iterations <= nb_iterations_max && convergence==0)
+	
+	/******** Boucle Expectation/Maximisation *********/
+	// Tant que le nombre d'itération entré en paramètre n'est pas atteind et tant qu'il n'y a pas de convergence
+	while (nb_iterations <= nb_iterations_max && !convergence)
 	{
+		printf("\n##############################################################################\n");
+		printf("# ITERATION EM %d\n", nb_iterations);
+		printf("##############################################################################\n");
 		
-		Maximisation_et_Esperance (&var); // Calcule de la fréquence de chaque haplotype et de la proba de chaque génotype pour 							l'itération en cours
+		// Calcul de la fréquence de chaque haplotype par maximisation
+		maximisation (&var);
+		// Calcul de la proba de chaque génotypes pour l'itération en cours et 
+		var.vraisemblance = estimation_esperance (&var);
 
 		printf("vraisemblance = %.9e\nvraisemblance_prec = %.9e\n", var.vraisemblance, var.vraisemblance_prec);
 		// Calcule de la valeur de la convergence
@@ -54,37 +67,23 @@ int main(int argc, char** argv)
 		printf("seuil = %.2e\n", seuil);
 		printf("valeur_convergence = %.2e\n", conv);
 		printf("valeur_convergence = %.2e\n\n", convergence);
-		printf("\n\n################################ Itération %d ################################\n\n", nb_iterations);
 	
-		// Si il n'y a pas convergence, on met à jour les fréquences à l'itération précedente des haplotypes et les probabilités à 			l'itération précédente des génotypes pour qu'elles prennent les nouvelles valeurs de fréquences et de probabilités calculées dans 			la fonction "Maximisation_et_Esperance"
-		if (convergence==0)
-		{Update_Hfreqpreq_Gprobaprec_vraisemblance_preq (&var);} //Mise à jour des valeurs prec qui prennent les valeurs courantes
+		/* Si il n'y a pas convergence, on met à jour les fréquences à l'itération
+		 * précedente des haplotypes et les probabilités à l'itération précédente
+		 * des génotypes pour qu'elles prennent les nouvelles valeurs de fréquences
+		 * et de probabilités calculées dans la fonction "Maximisation_et_Esperance" */
 		
-		// On incrémente l'itération pour passer à l'itération suivante
-		nb_iterations++;
+		if (!convergence)
+			// Mise à jour des valeurs prec qui prennent les valeurs courantes
+			update_proba_freq_vraisemblance (&var);
+		
+		nb_iterations ++;
 	}
+	/******** Creation et export des fichiers de resultats *********/
 	
-	return 0;
+	return 1;
 }
-	/*
-	Convergence = faux
-	nbr_etapes = 0
-	Vraisemblance_prec = VALEUR_MIN // valeur min est la plus petite valeur gérer par l'ordinateur
-	Tantque (Convergence == Faux && nb_etapes <= nb_etapes_max)
-	incr nb_etapes
-	maximisation ()
-	Vraisemblance = esperance ()
-	Convergence = ((| Vraisemblance – Vraisemblance_prec | / Vraisemblance_prec) <= seuil) // A REVOIR ICI.......
-	si (Convergence == Faux)
-	alors
-	Vraisemblance_prec = Vraisemblance
-	Freq_prec = freq
-	proba_prec = proba
-	finsi
-	finTantQue
-	}
-	*/
- 
+
 void usage (char* prog_name)
 {
 	fprintf (stderr, "\nUsage:\t%s [fichier__genotypes] [mode_init] [nb_iterations] [seuil_convergence]\n\n", prog_name);

@@ -110,9 +110,7 @@ void print_tab_haplo (T_info* pvar)
 	int i;
 	T_geno_expl* ptrj = NULL;
 	
-	printf("\n\n###############################################\n");
-	printf("\nListe Des haplotypes et des genotypes expliqués\n");
-	printf("\n###############################################\n\n");
+	printf("\n############### LISTE DES HAPLOTYPES ###############\n\n");
 	
 	for (i = 0; i < pvar->nb_haplo; i++ )
 	{
@@ -147,9 +145,7 @@ void print_tab_geno (T_info* pvar)
 	int i;
 	T_diplo_expl* ptrj = NULL;
 	
-	printf("\n\n#################################################\n");
-	printf("\nListe des genotypes et des diplotypes explicatifs\n");
-	printf("\n#################################################\n\n");
+	printf("\n############### LISTE DES GENOTYPES ################\n\n");
 	
 	for (i = 0; i < pvar->nb_geno; i++ )
 	{
