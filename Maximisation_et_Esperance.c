@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "EM_main.h"
-	
 
 /***********************************************************************
  * Maximisation et estimation esperance
@@ -50,14 +49,14 @@ void maximisation(T_info* pvar)
 			if (i==ptrj -> num_haplo_compl) //cas homozygote
 			{
 				// Calcul de la contribution
-				contrib=((2 * pvar->tab_haplo[i].frequence_prec * pvar->tab_haplo[i].frequence_prec) / 
+				contrib = ((2 * pvar->tab_haplo[i].frequence_prec * pvar->tab_haplo[i].frequence_prec) / 
 				(pvar->tab_geno[ptrj->num_geno_expl].proba_prec)) * ((pvar->tab_geno[ptrj->num_geno_expl].nb_ind / (double)pvar->nb_ind));
 				printf("contribution=%.2e\n", contrib);
 			}
 			else //cas hétérozygote
 			{
 				// Calcul de la contribution
-				contrib=((2 * pvar->tab_haplo[i].frequence_prec * pvar->tab_haplo[ptrj->num_haplo_compl].frequence_prec) / 
+				contrib = ((2 * pvar->tab_haplo[i].frequence_prec * pvar->tab_haplo[ptrj->num_haplo_compl].frequence_prec) / 
 				(pvar->tab_geno[ptrj->num_geno_expl].proba_prec)) * ((pvar->tab_geno[ptrj->num_geno_expl].nb_ind / (double)pvar->nb_ind));
 
 				//printf("freq = %.2e\n", freq);
@@ -67,7 +66,6 @@ void maximisation(T_info* pvar)
 			printf("freq_accumulée = %.2e\n", freq);
 			ptrj = ptrj -> suivant;
 		}
-		//freq = freq/2.0;
 
 		printf("\nfreq_totale=%.2e\n", freq);
 		pvar->tab_haplo[i].frequence = freq/2.0;
@@ -122,19 +120,16 @@ double estimation_esperance(T_info* pvar)
 			ptrj = ptrj -> suivant;
 		}
 		printf ("\nProbabilite finale de geno %d = %.2e\n", i, pvar->tab_geno[i].proba);
-		
-		// #####################################################
-		// problème ici...
-		
+			
 		// Calcul de la loglikelyhood par acumulation logarithmique de vraisemblance
-		loglikelihood = loglikelihood + (pvar->tab_geno[i].nb_ind) * log (pvar->tab_geno[i].proba); // A revoir car pas sûr
+		loglikelihood += ((pvar->tab_geno[i].nb_ind) * log (pvar->tab_geno[i].proba));
 		printf("LogLikelihood calculé lors de ce génotype: %.2e\n\n", loglikelihood);
 	}
 	return loglikelihood;
 }
 
 
-void update_proba_freq_vraisemblance (T_info* pvar)
+void update_proba_freq (T_info* pvar)
 {
 	int i;
 
@@ -157,11 +152,6 @@ void update_proba_freq_vraisemblance (T_info* pvar)
 		printf("\tNouvelle freq_prec : %.2e\n", pvar->tab_haplo[i].frequence_prec);
 	}
 	printf("\n");
-	
-	// Mise à jour de la vraisemblance précédente qui prend la valeur de la vraisemblance courante
-	printf("Ancienne vraisemblance : %.2e\t ", pvar->vraisemblance_prec);
-	pvar->vraisemblance_prec = pvar->vraisemblance;
-	printf("\tNouvelle vraisemblance : %.2e\n\n ", pvar->vraisemblance_prec);
 
 	return;
 }

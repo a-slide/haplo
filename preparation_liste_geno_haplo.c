@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "EM_main.h"
+#include "ptr_allocation.h"
  
 /**** preparation_liste_geno_haplo ***************************************/
 // PRE CONDITIONS
@@ -47,7 +48,7 @@ void preparation_liste_geno_haplo (T_info* pvar)
 			//Mettre les paires d'haplotypes dans la liste chainée associée au génotype courant
 			ajouter_diplo_a_geno (num_haplo_A, num_haplo_B, i, pvar);
 		}
-		//liberer_char_mat (pvar->tab_haplo_expl, pvar->nb_haplo_expl);
+	//	free_char_mat (pvar->tab_haplo_expl, pvar->nb_haplo_expl);
 	}
 	
 	return;
@@ -119,12 +120,7 @@ int ajouter_tab_haplo (char* haplo_seq, T_info* pvar)
 void init_tab_geno (char* geno_seq, T_info* pvar)
 {
 	pvar->tab_geno = malloc (sizeof (T_geno)); // taille = 1 pour le premier element
-	
-	if (pvar->tab_geno == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
+	if (pvar->tab_geno == NULL) error_and_exit();
 	
 	pvar->tab_geno[0].sequence = geno_seq;
 	pvar->tab_geno[0].proba = 0;
@@ -139,12 +135,7 @@ void init_tab_geno (char* geno_seq, T_info* pvar)
 void init_tab_haplo (char* haplo_seq, T_info* pvar)
 {
 	pvar->tab_haplo = malloc (sizeof (T_haplo)); // taille = 1 pour le premier element
-	
-	if (pvar->tab_haplo == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
+	if (pvar->tab_haplo == NULL) error_and_exit();
 	
 	pvar->tab_haplo[0].sequence = haplo_seq;
 	pvar->tab_haplo[0].frequence = 0;
@@ -160,12 +151,7 @@ void extend_tab_geno (char* geno_seq, T_info* pvar)
 	int n = pvar->nb_geno; // Nombre de génotypes dans la tab_geno
 	
 	pvar->tab_geno = realloc (pvar->tab_geno, sizeof (T_geno) * n);
-	
-	if (pvar->tab_geno == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
+	if (pvar->tab_geno == NULL) error_and_exit();
 	
 	pvar->tab_geno[n-1].sequence = geno_seq;
 	pvar->tab_geno[n-1].proba = 0;
@@ -182,12 +168,7 @@ void extend_tab_haplo (char* haplo_seq, T_info* pvar)
 	int n = pvar->nb_haplo; // Nombre de génotypes dans la tab_geno
 	
 	pvar->tab_haplo = realloc (pvar->tab_haplo , sizeof (T_haplo) * n);
-	
-	if (pvar->tab_haplo == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
+	if (pvar->tab_haplo == NULL) error_and_exit();
 	
 	pvar->tab_haplo[n-1].sequence = haplo_seq;
 	pvar->tab_haplo[n-1].frequence = 0;
@@ -210,12 +191,14 @@ void haplotypes_possibles (char* geno_seq, T_info* pvar)
 	char** tab; // tableau permettant de stocker temporairement les haplo générés
 	
 	nb_amb = compte_ambiguites(geno_seq, pvar->taille); // calcul du nombre d'ambiguités dans le genotype courant
-	///printf("Nombre d'ambiguités : %d\n", nb_amb);
 	
-	if (nb_amb != 0) n = exp2(nb_amb); // il existe 2^amb haplotypes possibles
-	else n = 2; // si 0 ambiguité, il faut quand même générer 2 haplotypes
+	
+	n = ((nb_amb == 0) ? 2 : exp2(nb_amb));
+	/// """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	//if (nb_amb != 0) n = exp2(nb_amb); // il existe 2^amb haplotypes possibles
+	//else n = 2; // si 0 ambiguité, il faut quand même générer 2 haplotypes
 	 
-	tab = create_char_mat (n, pvar->taille+1);
+	tab = malloc_char_mat(n, pvar->taille+1);
 	amb = 0;
 	
 	for (j = 0; j < pvar->taille ; j ++)
@@ -255,45 +238,10 @@ void haplotypes_possibles (char* geno_seq, T_info* pvar)
 	// Retour par remplissage des variables de T_info var
 	pvar->tab_haplo_expl = tab;
 	pvar->nb_haplo_expl = n;
-	
+		
 	return;
 }
- 
-/**** create_char_mat *************************************************/
- char** create_char_mat (int col, int line)
-{
-	int i;
-	char** matrice;
-	matrice = malloc (sizeof (char*) * col); // creation colonnes
-	
-	if (matrice == NULL)	// Verification de l'allocation
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
-	for ( i = 0; i < col; i++ )
-	{
-		matrice[i] = malloc (sizeof (char) * line); // creation lignes
-		if (matrice[i] == NULL)
-		{
-			fprintf (stderr, "Allocation impossible\n\n");
-			exit (EXIT_FAILURE);
-		}
-	}
-	return matrice;
-}
 
-/**** liberer_char_mat *************************************************/
- void liberer_char_mat (char** tab, int line)
-{
-	int i;
-
-	for (i = 0; i < line; i++)
-			free(tab[i]);
-			
-	free(tab);
-		return;
-}
 
 /**** print_string_table **********************************************/
  void print_string_table (char** tab, int line)
@@ -324,25 +272,21 @@ void ajouter_diplo_a_geno (int num_haplo_A, int num_haplo_B, int num_geno, T_inf
 // POST CONDITIONS
 {
 	T_diplo_expl* cellule = malloc( sizeof (T_diplo_expl));
-	if (cellule == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
+	if (cellule == NULL) error_and_exit();
 	
 	cellule -> num_haplo_A = num_haplo_A;
 	cellule -> num_haplo_B = num_haplo_B;
 	cellule -> suivant = NULL;
 
-	if (pvar->tab_geno[num_geno].tete == NULL) // ajout de la première cellule à la liste
+	if (pvar->tab_geno[num_geno].tete == NULL) // Ajout de la première cellule à la liste
 	{
 		pvar->tab_geno[num_geno].tete = cellule;
 		pvar->tab_geno[num_geno].queue = cellule;
 	}
-	else // ajout en queue de liste = chainage simplifié
+	else // Ajout en queue de liste = chainage simplifié
 	{
-		pvar->tab_geno[num_geno].queue -> suivant = cellule; // chainage avec cellule precedente
-		pvar->tab_geno[num_geno].queue = cellule; // avancée du pointeur
+		pvar->tab_geno[num_geno].queue -> suivant = cellule; // Chainage avec la cellule precedente
+		pvar->tab_geno[num_geno].queue = cellule; // Avancée du pointeur
 	}
 	return;
 }
@@ -353,11 +297,8 @@ void ajouter_geno_a_haplo (int num_haplo_principal, int num_haplo_compl, int num
 // POST CONDITIONS
 {
 	T_geno_expl* cellule = malloc( sizeof (T_geno_expl));
-	if (cellule == NULL)
-	{
-		fprintf (stderr, "Allocation impossible\n\n");
-		exit (EXIT_FAILURE);
-	}
+	if (cellule == NULL) error_and_exit();
+	
 	cellule -> num_geno_expl = num_geno_expl;
 	cellule -> num_haplo_compl = num_haplo_compl;
 	cellule -> suivant = NULL;
@@ -369,7 +310,7 @@ void ajouter_geno_a_haplo (int num_haplo_principal, int num_haplo_compl, int num
 	}
 	else // Ajout en queue de liste = chainage simplifié
 	{
-		pvar->tab_haplo[num_haplo_principal].queue -> suivant = cellule; // Chainage avec cellule precedente
+		pvar->tab_haplo[num_haplo_principal].queue -> suivant = cellule; // Chainage avec la cellule precedente
 		pvar->tab_haplo[num_haplo_principal].queue = cellule; // Avancée du pointeur
 	}
 	return;

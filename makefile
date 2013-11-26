@@ -19,19 +19,19 @@ BIN = EM_main
 
 all: $(BIN)
 	
-EM_main: EM_main.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o Maximisation_et_Esperance.o
+EM_main: EM_main.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o Maximisation_et_Esperance.o ptr_allocation.o
 	$(CC) $^ $(LDFLAGS) -o $@
 	# Edition de lien a partir des fichiers objets
 
-EM_main.o: EM_main.c EM_main.h
+EM_main.o: EM_main.c EM_main.h ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@ 
 	# Compilation de EM_main.c
 
-importation_genotypes.o: importation_genotypes.c EM_main.h
+importation_genotypes.o: importation_genotypes.c EM_main.h ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de importation_genotypes.c
 
-preparation_liste_geno_haplo.o: preparation_liste_geno_haplo.c EM_main.h
+preparation_liste_geno_haplo.o: preparation_liste_geno_haplo.c EM_main.h ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de preparation_liste_geno_haplo.c
 
@@ -42,6 +42,10 @@ initialisation_freq_proba.o: initialisation_freq_proba.c EM_main.h
 Maximisation_et_Esperance.o: Maximisation_et_Esperance.c EM_main.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de Maximisation_et_Esperance.c
+
+ptr_allocation.o: ptr_allocation.c EM_main.h ptr_allocation.h
+	$(CC) $< $(CFLAGS) -o $@
+	# ptr_allocation.c
 
 ##################### INSTRUCTIONS DE NETTOYAGE ########################
 

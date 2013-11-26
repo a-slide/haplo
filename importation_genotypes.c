@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "EM_main.h"
+#include "ptr_allocation.h"
 
-/***** importation_genotypes ******************************************/
+/***********************************************************************
+ * importation_genotypes
+ **********************************************************************/
 //PRE CONDITIONS
 //POST CONDITIONS
 void importation_genotypes(char* genotype_file, T_info* pvar)
@@ -22,11 +25,12 @@ void importation_genotypes(char* genotype_file, T_info* pvar)
 	printf("\nTaille des génotypes = %d, Nombre d'individus = %d\n\n", taille, nb_ind);
 	
 	pvar->tab_individus = malloc (sizeof (T_individu) * nb_ind);
+	if (pvar->tab_individus == NULL) error_and_exit();
 	
 	for (i = 0; i < nb_ind; i++) 
 	{
-		pvar->tab_individus[i].sequence = malloc (sizeof (char)* (taille + 1));
-		fgets(pvar->tab_individus[i].sequence, taille + 2, file); // Remplissage du tableau par fgets...
+		pvar->tab_individus[i].sequence = malloc_char_string(taille + 1);
+		fgets(pvar->tab_individus[i].sequence, taille + 2, file); // Remplissage du tableau par fgets
 		pvar->tab_individus[i].sequence[taille] = '\0'; // Remplacement de \n par \0
 		///printf("Individu #%d\t Sequence: %s\t\n", i, pvar->tab_individus[i].sequence);
 	}
@@ -38,23 +42,9 @@ void importation_genotypes(char* genotype_file, T_info* pvar)
 	return;
 }
 
-/***** init_file_ptr **************************************************/
-// name = nom du fichier à ouvrir
-// mode = mode d'ouverture d'un fichier r = lecture, w = ecriture a = append
-FILE* init_file_ptr (char* name, char* mode)
-{
-	FILE* file = NULL;
-	
-	file = fopen (name, mode);
-	if (file == NULL)
-	{
-		fprintf (stderr, "Impossible d'ouvrir ou de creer le fichier %s\n\n", name );
-		exit (EXIT_FAILURE);
-	}
-	return file;
-}
- 
-/***** nb_lignes ******************************************************/
+/***********************************************************************
+ * nb_lignes
+ **********************************************************************/
 // Compte le nombre de lignes du fichier
 int nb_ligne (FILE *fp)
 {
@@ -64,8 +54,10 @@ int nb_ligne (FILE *fp)
 			n++;
 	return n;
 }
- 
-/***** nb_char_per_line ***********************************************/
+
+/***********************************************************************
+ * nb_char_per_line
+ **********************************************************************/
 // Compte le nombre de char de la première ligne du fichier
 int nb_char (FILE *fp)
 {

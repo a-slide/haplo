@@ -8,15 +8,13 @@
  * initialisation_freq_proba
  **********************************************************************/
 
-void initialisation_freq_proba (T_info* pvar, char mode)
+void initialisation_freq_proba (T_info* pvar, int mode)
 {
-	if ((mode == 'A') || (mode == 'a'))
-		haplo_random_freq (pvar);
-	else // si autre char entré en paramètre
-		init_haplo_equi_freq (pvar);
-	
+	// Initialisation equiprobable ou aleatoire des frequences des haplotypes
+	(mode == 1) ? haplo_random_freq (pvar) : init_haplo_equi_freq (pvar);
 	print_tab_haplo (pvar);
 	
+	// Calcul des probabilites des genotypes
 	init_geno_proba (pvar);
 	print_tab_geno (pvar);
 	
@@ -67,18 +65,18 @@ void haplo_random_freq (T_info* pvar)
  
 void init_geno_proba (T_info* pvar)
 {
-	int i; // boucle de deplacement dans le tableau
+	int i;
 	double f1, f2;
 	T_diplo_expl* ptrj = NULL;
 	
 	printf ("\n\nCALCUL DE LA PROBABILTE DE CHAQUE GENOTYPE\n");
 	
-	for (i = 0; i < pvar->nb_geno; i++ )
+	for (i = 0; i < pvar->nb_geno; i++ ) // pour chaque genotype de tab_geno
 	{
 		ptrj = pvar->tab_geno[i].tete;
 		
 		printf ("\nProbabilites partielles de geno %d", i);
-		while (ptrj != NULL) // parcourt la liste de diplo explicatifs jusqu'à la fin
+		while (ptrj != NULL) // parcours la liste de diplo explicatifs jusqu'à la fin
 		{
 			if (ptrj->num_haplo_A == ptrj->num_haplo_B) // Si Haplo A et Haplo B sont les mêmes
 			{
