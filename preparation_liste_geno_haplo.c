@@ -39,7 +39,6 @@ void preparation_liste_geno_haplo (T_info* pvar)
 			// Ajout des haplotypes A et B d'une paire explicative à la liste des haplotypes si ils n'existent pas et retour de leur indice
 			num_haplo_A = ajouter_tab_haplo (pvar->tab_haplo_expl[j], pvar);
 			num_haplo_B = ajouter_tab_haplo (pvar->tab_haplo_expl[j+1], pvar);
-			///printf("Diplotype #%d: haplotype #%d haplotype #%d\n\n ", j/2, num_haplo_A, num_haplo_B);
 			
 			// Mettre les genotypes explicatifs avec l'haplo complementaire dans la liste chainée associée à chacun des 2 haplotypes
 			ajouter_geno_a_haplo (num_haplo_A, num_haplo_B, i, pvar);
@@ -190,14 +189,12 @@ void haplotypes_possibles (char* geno_seq, T_info* pvar)
 	int n; // compteur d'haplotypes générable pour le génotype donné (a retourner par p_nb_haplo_expl)
 	char** tab; // tableau permettant de stocker temporairement les haplo générés
 	
-	nb_amb = compte_ambiguites(geno_seq, pvar->taille); // calcul du nombre d'ambiguités dans le genotype courant
+	// calcul du nombre d'ambiguités dans le genotype courant
+	nb_amb = compte_ambiguites(geno_seq, pvar->taille); 
 	
-	
-	n = ((nb_amb == 0) ? 2 : exp2(nb_amb));
-	/// """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-	//if (nb_amb != 0) n = exp2(nb_amb); // il existe 2^amb haplotypes possibles
-	//else n = 2; // si 0 ambiguité, il faut quand même générer 2 haplotypes
-	 
+	// il existe 2^nb_amb haplotypes possibles mais si nb_amb = 0 il faut quand même generer 2 haplotypes
+	n = ((nb_amb == 0) ? 2 : exp2(nb_amb)); 
+
 	tab = malloc_char_mat(n, pvar->taille+1);
 	amb = 0;
 	
@@ -235,10 +232,10 @@ void haplotypes_possibles (char* geno_seq, T_info* pvar)
 	// Pour terminer proprement les chaines de charactères
 	for (k = 0; k < n ; k ++)
 		tab[k][j] = '\0';
-	// Retour par remplissage des variables de T_info var
+	// Remplissage des variables de T_info var
 	pvar->tab_haplo_expl = tab;
 	pvar->nb_haplo_expl = n;
-		
+	
 	return;
 }
 
