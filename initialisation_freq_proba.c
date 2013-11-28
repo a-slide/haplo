@@ -88,7 +88,7 @@ void init_geno_proba (T_info* pvar)
 			}
 			ptrj = ptrj -> suivant;
 		}
-		printf ("\nProbabilite finale de geno %d = %e\n\n", i, pvar->tab_geno[i].proba_prec);
+		//printf ("\nProbabilite initiale de geno %d = %e\n", i, pvar->tab_geno[i].proba_prec);
 	}
 	return;
 }

@@ -108,13 +108,14 @@ int main(int argc, char** argv)
 	encadre ("SORTIE DE EM");
 	printf("Iteration de sortie %d / convergence de sortie : %e (seuil : %e) \n", nb_iterations, convergence, seuil);
 
-	
 	/******** Creation et export des fichiers de resultats *********/
 	
-	// definir paire plus probable pour chaque genotypes
-	// creer fichier listantnt les genotypes et la paire la plus probable pour chaque individus
-	// creer fichier listant les haplotypes par ordre croissant
-	// merci bonsoir!
+	encadre ("CREATION DES FICHIERS DE SORTIE ");
+	
+	// trouve_diplotype_explicatif (&var);		// Definir paire plus probable pour chaque genotypes
+	// exportation_diplo_explicatifs (&var);	// Creer fichier listant les genotypes et la paire la plus probable pour chaque individus
+	// tri_tab_haplo (&var);					
+	// exportation_haplo (&var); 				// Creer fichier listant les haplotypes par ordre croissant
 	
 	return (EXIT_SUCCESS);
 }
@@ -126,32 +127,32 @@ int main(int argc, char** argv)
 void usage (char* prog_name)
 {
 	fprintf (stderr, "\nUSAGE:\t%s -f <chemin> [-a -e -i <entier> -s <decimal> -h]\n\n", prog_name);
-	fprintf (stderr, "Ce programme permet d'inferer les haplotypes constituant une liste de génotypes\n\n");
 	
-	fprintf (stderr, "DETAILS DES OPTIONS\n\n");
+	fprintf (stderr, "DESCRIPTION\n\n\
+	Ce programme permet d'inférer les haplotypes constituant une liste de génotypes\n\n\
+	La convention d'encodage des positions doit être la suivante:\n\
+		0 si les 2 haplotypes possèdent l'allèle mineure\n\
+		2 si les 2 haplotypes possèdent l'allèle majeure\n\
+		1 si 1 haplotype possède l'allèle majeure et l'autre l'allèle mineure\n\
+	Par exemple si le genotype G est constitué des haplotypes Ha = aBCd et Hb = abCd ou les minuscules\n\
+	sont les allèles minneures et les majuscules les allèles majeures, alors les Ha, Hb et G\n\
+	seront respectivement codés O110, 0010 et 0120.\n\n");
 	
-	fprintf (stderr, "\t-f\t fichier texte contenant une liste de genotypes pour une serie d'individus\n");
-	fprintf (stderr, "\t\tIl s'agit de la seule option obligatoire du programme\n");
-	fprintf (stderr, "\t\tDans ce programme l'encodage des positions ambigues adopté est 1\n");
-	fprintf (stderr, "\t\tPar exemple si le genotype G est constitué des haplotypes Ha = aBCd et Hb = abCd\n");
-	fprintf (stderr, "\t\t ou les minuscules sont les alleles minoritaires et les majuscules les allèles\n");
-	fprintf (stderr, "\t\t majoritaires, alors les Ha, Hb et G seront respectivement codés O110, 0010 et 0120\n\n");
+	fprintf (stderr, "DETAILS DES OPTIONS\n\n\
+	-f	fichier texte contenant une liste de génotypes pour une serie d'individus\n\
+		Il s'agit de la seule option obligatoire du programme\n\n\
+	-e	Mode d'initialisation des fréquences d'haplotypes equi-probable (option par defaut)\n\
+	-a	Mode d'initialisation des fréquences d'haplotypes aléatoire\n\
+		Les options -a et -e sont mutuellement exclusives (en cas de conflit -e sera appliquée)\n\n\
+	-i	Nombre d'itération de la boucle EM. Valeur obligatoirement positive ou nulle\n\
+		Par defaut = 10. la valeur peut être réglée à 0 pour boucler jusqu'à convergence\n\n\
+	-s	Valeur seuil de convergence declenchant l'arret de la boucle EM. Min = -10 / Max = 0\n\
+		Par defaut = -0.001. la valeur peut être réglée à 0 pour boucler jusqu'à l'iteration maximale\n\n\
+	-h	Affiche cet ecran d'aide\n\n");
 	
-	fprintf (stderr, "\t-e\tMode d'initialisation des frequences d'haplotypes equi-probable (option par defaut)\n");
-	fprintf (stderr, "\t-a\tMode d'initialisation des frequences d'haplotypes aléatoire\n");
-	fprintf (stderr, "\t\tLes options -a et -e sont mutuellement exclusives (en cas de conflit -e sera appliquée)\n\n");
-	
-	fprintf (stderr, "\t-i\tNombre d'iteration de la boucle EM. Valeur obligatoirement positive ou nulle\n");
-	fprintf (stderr, "\t\tPar defaut = 10. la valeur peut être réglée à 0 pour boucler jusqu'à convergence\n\n");
-
-	fprintf (stderr, "\t-s\tValeur seuil de convergence declenchant l'arret de la boucle EM. Min = -10 / Max = 0\n");
-	fprintf (stderr, "\t\tPar defaut = -0.001. la valeur peut être réglée à 0 pour boucler jusqu'à l'iteration maximale\n\n");
-	
-	fprintf (stderr, "\t-h\tAffiche cet ecran d'aide\n\n");
-	
-	fprintf (stderr, "EXEMPLES\n\n");
-	fprintf (stderr, "\t%s -f mon_dossier/genotypes.txt -a -i 20 -s -0.00001 \n", prog_name);
-	fprintf (stderr, "\t%s -f mon_dossier/genotypes.txt -e -i 0 -s -0.000000001 \n", prog_name);
+	fprintf (stderr, "EXEMPLES\n\n\
+	%s -f mon_dossier/genotypes.txt -a -i 20 -s -0.00001\n\
+	%s -f mon_dossier/genotypes.txt -e -i 0 -s -0.000000001\n",prog_name, prog_name);
 	
 	exit (EXIT_FAILURE);
 }

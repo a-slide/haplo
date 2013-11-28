@@ -81,16 +81,11 @@
 
 	// Dans main
 	void usage (char*);
-	void encadre (char*);
 	void importation_genotypes(char*, T_info*);
 	void preparation_liste_geno_haplo (T_info*);
 	void initialisation_freq_proba (T_info*, int);
-	void maximisation (T_info*);
-	double estimation_esperance(T_info*);
-	void update_proba_freq (T_info*);
 
-	//Dans importation_genotypes 
-	FILE* init_file_ptr (char*, char*);
+	//Dans importation_genotypes
 	int nb_ligne (FILE*);
 	int nb_char (FILE*);
 
@@ -99,8 +94,6 @@
 	void init_tab_geno (char*, T_info*);
 	void extend_tab_geno (char*, T_info*);
 	void haplotypes_possibles (char*, T_info*);
-	char** create_char_mat (int, int);
-	void liberer_char_mat (char**, int);
 	void print_string_table (char**, int);
 	int compte_ambiguites (char*, int);
 	int ajouter_tab_haplo (char*, T_info*);
@@ -115,5 +108,10 @@
 	void init_geno_proba (T_info*);
 	void print_tab_haplo (T_info*);
 	void print_tab_geno (T_info*);
+	
+	// Dans maximisation_estimation
+	void maximisation (T_info*);
+	double estimation_esperance(T_info*);
+	void update_proba_freq (T_info*);
 
 #endif /* INFERENCE_HAPLOTYPE_H */
