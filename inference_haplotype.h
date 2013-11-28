@@ -1,5 +1,5 @@
-#ifndef EM_MAIN_H
-#define EM_MAIN_H
+#ifndef INFERENCE_HAPLOTYPE_H
+#define INFERENCE_HAPLOTYPE_H
 
 
 	/***********************************************************************
@@ -116,4 +116,4 @@
 	void print_tab_haplo (T_info*);
 	void print_tab_geno (T_info*);
 
-#endif /* EM_MAIN_H */
+#endif /* INFERENCE_HAPLOTYPE_H */

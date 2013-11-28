@@ -4,7 +4,7 @@
 #include <string.h>
 #include <float.h>
 #include <unistd.h>
-#include "EM_main.h"
+#include "inference_haplotype.h"
 #include "ptr_allocation.h"
  
 /***********************************************************************
@@ -20,8 +20,8 @@ int main(int argc, char** argv)
 	double seuil = -0.001;					// Seuil de convergence de EM pouvant être modifie par l'utilisateur
 	double convergence = 0;					// Valeur de la convergence calcule à chaque iteration
 	char* filename = NULL;					// Nom du fichier contenant la liste de genotypes des individus
-	double vraisemblance = 0;				// Valeur de vraisenblance qui sera utilisé comme contrôle de sortie de boucle EM
-	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisenblance de l'itération precedente initialisée à -infini
+	double vraisemblance = 0;				// Valeur de vraisemblance qui sera utilisé comme contrôle de sortie de boucle EM
+	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisemblance de l'itération precedente initialisée à -infini
 	T_info var; 							// Structure var contenant les variables et pointeurs de structures importants
 		var.tab_individus = NULL;
 		var.tab_geno = NULL;
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 	// creer fichier listant les haplotypes par ordre croissant
 	// merci bonsoir!
 	
-	return 0;
+	return (EXIT_SUCCESS);
 }
 
 /***********************************************************************
@@ -156,24 +156,3 @@ void usage (char* prog_name)
 	exit (EXIT_FAILURE);
 }
 
-/***********************************************************************
- * ENCADRE = encadre un chaine de charactere par des #
- **********************************************************************/
-
-void encadre (char* name)
-{
-	int i;
-	
-	printf("\n\n");
-	
-	for (i = 0; i < 75; i++)
-		printf("#");
-		
-	printf("\n# %s\n", name);
-
-	for (i = 0; i < 75; i++)
-		printf("#");
-	
-	printf("\n\n");
-	return;
-}

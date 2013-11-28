@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "EM_main.h"
+#include "inference_haplotype.h"
 
 /***********************************************************************
  * initialisation_freq_proba
@@ -10,10 +10,12 @@
 
 void initialisation_freq_proba (T_info* pvar, int mode)
 {
+	printf ("\nINITIALISATION DES FREQUENCES DES HAPLOTYPES\n");
 	// Initialisation equiprobable ou aleatoire des frequences des haplotypes
 	(mode == 1) ? haplo_random_freq (pvar) : init_haplo_equi_freq (pvar);
 	print_tab_haplo (pvar);
 	
+	printf ("\nINITIALISATION DES PROBABILITES DES GENOTYPES\n");
 	// Calcul des probabilites des genotypes
 	init_geno_proba (pvar);
 	print_tab_geno (pvar);
@@ -29,7 +31,6 @@ void init_haplo_equi_freq (T_info* pvar)
 {
 	int i;
 	
-	printf ("\n\nINITIALISATION EQUI-PROBABLE DES FREQUENCES DES HAPLOTYPES\n");
 	for (i = 0; i < pvar->nb_haplo; i++)
 		pvar->tab_haplo[i].frequence_prec = 1.0/ pvar->nb_haplo;
 
@@ -46,10 +47,9 @@ void haplo_random_freq (T_info* pvar)
 	int sum = 0;
 	srand (time(NULL)); // seed value pour rand
 	
-	printf ("\n\nINITIALISATION ALEATOIRE DES FREQUENCES DES HAPLOTYPES\n");
 	for (i = 0; i < pvar->nb_haplo; i++)
 	{
-		pvar->tab_haplo[i].frequence_prec = rand() % 100 + 1; // initialalisation aléatoire entre 1 et 100
+		pvar->tab_haplo[i].frequence_prec = rand() % 100 + 1; // initialisation aléatoire entre 1 et 100
 		sum = sum + pvar->tab_haplo[i].frequence_prec;
 	}
 
@@ -69,13 +69,10 @@ void init_geno_proba (T_info* pvar)
 	double f1, f2;
 	T_diplo_expl* ptrj = NULL;
 	
-	printf ("\n\nCALCUL DE LA PROBABILTE DE CHAQUE GENOTYPE\n");
-	
 	for (i = 0; i < pvar->nb_geno; i++ ) // pour chaque genotype de tab_geno
 	{
 		ptrj = pvar->tab_geno[i].tete;
 		
-		printf ("\nProbabilites partielles de geno %d", i);
 		while (ptrj != NULL) // parcours la liste de diplo explicatifs jusqu'à la fin
 		{
 			if (ptrj->num_haplo_A == ptrj->num_haplo_B) // Si Haplo A et Haplo B sont les mêmes
@@ -87,13 +84,11 @@ void init_geno_proba (T_info* pvar)
 			{	
 				f1 = pvar->tab_haplo [ptrj->num_haplo_A].frequence_prec; // frequence de l'haplotype A
 				f2 = pvar->tab_haplo [ptrj->num_haplo_B].frequence_prec; // frequence de l'haplotype A
-				pvar->tab_geno[i].proba_prec += (2*f1*f2); //  mise à jour de la probabilité du genome i A VERIFIER
+				pvar->tab_geno[i].proba_prec += (2*f1*f2); //  mise à jour de la probabilité du genome i
 			}
-			printf (" -> %.2e", pvar->tab_geno[i].proba_prec);
-			
 			ptrj = ptrj -> suivant;
 		}
-		printf ("\nProbabilite finale de geno %d = %.2e\n\n", i, pvar->tab_geno[i].proba_prec);
+		printf ("\nProbabilite finale de geno %d = %e\n\n", i, pvar->tab_geno[i].proba_prec);
 	}
 	return;
 }

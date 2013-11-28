@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include "EM_main.h"
+#include "inference_haplotype.h"
 
 /***********************************************************************
  * Maximisation et estimation esperance

@@ -10,7 +10,7 @@ CFLAGS =  -c -g -Wall -W -Wno-unused-parameter
 LDFLAGS = -lm
 	# Options d'edition de lien
 
-BIN = EM_main
+BIN = inference_haplotype
 	# Nom des executables a creer
 
 #################### INSTRUCTIONS DE COMPILATION #######################
@@ -19,33 +19,33 @@ BIN = EM_main
 
 all: $(BIN)
 	
-EM_main: EM_main.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o Maximisation_et_Esperance.o ptr_allocation.o
+inference_haplotype: inference_haplotype.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o maximisation_esperance.o ptr_allocation.o
 	$(CC) $^ $(LDFLAGS) -o $@
 	# Edition de lien a partir des fichiers objets
 
-EM_main.o: EM_main.c EM_main.h ptr_allocation.h
+inference_haplotype.o: inference_haplotype.c inference_haplotype.h ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@ 
-	# Compilation de EM_main.c
+	# Compilation de inference_haplotype.c
 
-importation_genotypes.o: importation_genotypes.c EM_main.h ptr_allocation.h
+importation_genotypes.o: importation_genotypes.c inference_haplotype.h ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de importation_genotypes.c
 
-preparation_liste_geno_haplo.o: preparation_liste_geno_haplo.c EM_main.h ptr_allocation.h
+preparation_liste_geno_haplo.o: preparation_liste_geno_haplo.c inference_haplotype.h ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de preparation_liste_geno_haplo.c
 
-initialisation_freq_proba.o: initialisation_freq_proba.c EM_main.h
+initialisation_freq_proba.o: initialisation_freq_proba.c inference_haplotype.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de initialisation_freq_proba.c
 
-Maximisation_et_Esperance.o: Maximisation_et_Esperance.c EM_main.h
+maximisation_esperance.o: maximisation_esperance.c inference_haplotype.h
 	$(CC) $< $(CFLAGS) -o $@
-	# Compilation de Maximisation_et_Esperance.c
+	# Compilation de maximisation_esperance.c
 
-ptr_allocation.o: ptr_allocation.c EM_main.h ptr_allocation.h
+ptr_allocation.o: ptr_allocation.c ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@
-	# ptr_allocation.c
+	# Compilation de ptr_allocation.c
 
 ##################### INSTRUCTIONS DE NETTOYAGE ########################
 
@@ -53,7 +53,7 @@ ptr_allocation.o: ptr_allocation.c EM_main.h ptr_allocation.h
 	# PHONY = Dependances systematiquement reconstruites
 
 clean:
-	rm -rf EM_main.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o Maximisation.o
+	rm -rf inference_haplotype.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o maximisation_esperance.o ptr_allocation.o
 	# Supprimer tous les fichiers intermédiaires
 
 mrproper: clean
