@@ -5,7 +5,7 @@
 #include "inference_haplotype.h"
 
 /***********************************************************************
- * Maximisation et estimation esperance
+ * maximisation
  **********************************************************************/
 
 void maximisation(T_info* pvar)
@@ -60,6 +60,9 @@ void maximisation(T_info* pvar)
 return;
 }
 
+/***********************************************************************
+ * estimation_esperance
+ **********************************************************************/
 
 double estimation_esperance(T_info* pvar)
 {
@@ -110,6 +113,9 @@ double estimation_esperance(T_info* pvar)
 	return loglikelihood;
 }
 
+/***********************************************************************
+ * update_proba_freq
+ **********************************************************************/
 
 void update_proba_freq (T_info* pvar)
 {

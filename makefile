@@ -16,10 +16,10 @@ BIN = inference_haplotype
 #################### INSTRUCTIONS DE COMPILATION #######################
 # $@ =  Cible # $^ = liste des dépendances # $< Première dépendance #
 
-
 all: $(BIN)
+	# Compilation terminée
 	
-inference_haplotype: inference_haplotype.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o maximisation_esperance.o ptr_allocation.o
+inference_haplotype: inference_haplotype.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o maximisation_esperance.o ptr_allocation.o traitement_final.o
 	$(CC) $^ $(LDFLAGS) -o $@
 	# Edition de lien a partir des fichiers objets
 
@@ -42,6 +42,10 @@ initialisation_freq_proba.o: initialisation_freq_proba.c inference_haplotype.h
 maximisation_esperance.o: maximisation_esperance.c inference_haplotype.h
 	$(CC) $< $(CFLAGS) -o $@
 	# Compilation de maximisation_esperance.c
+	
+traitement_final.o: traitement_final.c inference_haplotype.h
+	$(CC) $< $(CFLAGS) -o $@
+	# Compilation de traitement_final.c
 
 ptr_allocation.o: ptr_allocation.c ptr_allocation.h
 	$(CC) $< $(CFLAGS) -o $@

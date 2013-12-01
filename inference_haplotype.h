@@ -34,6 +34,7 @@
 		int nb_diplo_expl; // compteur de diplotype explicatifs
 		int num_haplo_A_max;
 		int num_haplo_B_max;
+		double proba_diplo_max;
 		T_diplo_expl* tete;
 		T_diplo_expl* queue;
 	};
@@ -113,5 +114,9 @@
 	void maximisation (T_info*);
 	double estimation_esperance(T_info*);
 	void update_proba_freq (T_info*);
+	
+	// Dans traitement_final
+	void diplotype_plus_probable (T_info*);
+	void export_geno_diplo (T_info*, char*);
 
 #endif /* INFERENCE_HAPLOTYPE_H */

@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 	double seuil = -0.001;					// Seuil de convergence de EM pouvant être modifie par l'utilisateur
 	double convergence = 0;					// Valeur de la convergence calcule à chaque iteration
 	char* filename = NULL;					// Nom du fichier contenant la liste de genotypes des individus
+	char* output_prefix = NULL;					// Prefixe du nom de sortie
 	double vraisemblance = 0;				// Valeur de vraisemblance qui sera utilisé comme contrôle de sortie de boucle EM
 	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisemblance de l'itération precedente initialisée à -infini
 	T_info var; 							// Structure var contenant les variables et pointeurs de structures importants
@@ -30,7 +31,7 @@ int main(int argc, char** argv)
 	/******** Parsing des options avec Getopt *********/
 	int optch;
     extern int opterr;
-    char format[] = "aehf:i:s:";
+    char format[] = "aeho:f:i:s:";
 	opterr = 1;
 	
     while ((optch = getopt(argc, argv, format)) != -1)
@@ -53,13 +54,20 @@ int main(int argc, char** argv)
             seuil = atof (optarg);
             if ((seuil < -10)||(seuil > 0)) usage(argv[0]);
 			break;
+		case 'o':
+            output_prefix = optarg;
+            break;
         case 'h':
 			usage(argv[0]);
             break;
     }
 	
-	if (filename == NULL) usage(argv[0]);
-	
+	if ((filename == NULL) || (output_prefix == NULL))
+	{
+		printf ("\nles options -f (nom de fichier d'entrée) et -o (prefixe de sortie) doivent être renseignés\n\n");
+		usage(argv[0]);
+	}
+			
 	encadre ("PARAMETRES D'ENTREE ET REGLAGES");
 	printf ("\tFichier contenant les genotypes = %s\n",filename);
 	printf ("\tMode d'initialisation des haplotypes = %s\n", ((mode_init == 1) ? "Aleatoire" : "Equiprobable"));
@@ -80,11 +88,11 @@ int main(int argc, char** argv)
 	
 	/******** Boucle Expectation/Maximisation *********/
 	
-	// Tant que le nombre d'iteration entre en parametre n'est pas atteint et tant qu'il n'y a pas de convergence
+	// Tant que le nombre d'itération entré en parametre n'est pas atteint et tant qu'il n'y a pas de convergence
 	while (nb_iterations != nb_iterations_max) // Pour permettre l'exception nb_iterations_max = 0
 	{
 		encadre ("DEBUT NOUVELLE ITERATION EM");
-		// Calcul de la frequence de chaque haplotype par maximisation
+		// Calcul de la fréquence de chaque haplotype par maximisation
 		maximisation (&var);
 
 		// Calcul de la proba de chaque genotypes pour l'iteration en cours et de la vraisemblance
@@ -112,8 +120,8 @@ int main(int argc, char** argv)
 	
 	encadre ("CREATION DES FICHIERS DE SORTIE ");
 	
-	// trouve_diplotype_explicatif (&var);		// Definir paire plus probable pour chaque genotypes
-	// exportation_diplo_explicatifs (&var);	// Creer fichier listant les genotypes et la paire la plus probable pour chaque individus
+	diplotype_plus_probable (&var);				// Definir paire plus probable pour chaque genotypes
+	export_geno_diplo (&var, output_prefix);	// Creer fichier listant les genotypes et la paire la plus probable pour chaque individus
 	// tri_tab_haplo (&var);					
 	// exportation_haplo (&var); 				// Creer fichier listant les haplotypes par ordre croissant
 	
@@ -126,7 +134,7 @@ int main(int argc, char** argv)
 
 void usage (char* prog_name)
 {
-	fprintf (stderr, "\nUSAGE:\t%s -f <chemin> [-a -e -i <entier> -s <decimal> -h]\n\n", prog_name);
+	fprintf (stderr, "\nUSAGE:\t%s -f <chemin> -o <prefixe> [-a -e -i <entier> -s <decimal> -h]\n\n", prog_name);
 	
 	fprintf (stderr, "DESCRIPTION\n\n\
 	Ce programme permet d'inférer les haplotypes constituant une liste de génotypes\n\n\
@@ -139,8 +147,8 @@ void usage (char* prog_name)
 	seront respectivement codés O110, 0010 et 0120.\n\n");
 	
 	fprintf (stderr, "DETAILS DES OPTIONS\n\n\
-	-f	fichier texte contenant une liste de génotypes pour une serie d'individus\n\
-		Il s'agit de la seule option obligatoire du programme\n\n\
+	-f	Fichier texte contenant une liste de génotypes pour une serie d'individus (Obligatoire)\n\
+	-o	Prefixe du nom du fichier de sortie (Obligatoire)\n\n\
 	-e	Mode d'initialisation des fréquences d'haplotypes equi-probable (option par defaut)\n\
 	-a	Mode d'initialisation des fréquences d'haplotypes aléatoire\n\
 		Les options -a et -e sont mutuellement exclusives (en cas de conflit -e sera appliquée)\n\n\

@@ -11,15 +11,15 @@
 void preparation_liste_geno_haplo (T_info* pvar)
 {
 	int i, j;
-	int num_geno, num_haplo_A, num_haplo_B; // Indices d'un genotype et d'une paire d'haplotypes explicatifs
+	int num_haplo_A, num_haplo_B; // Indices d'un genotype et d'une paire d'haplotypes explicatifs
 
 	// Création d'une liste de genotypes non redondants à partir de tab_individus
 	
 	printf("\nListe des individus et numero de genotype correspondant\n");
 	for (i = 0 ; i < pvar->nb_ind; i++)
 	{
-		num_geno = ajouter_tab_geno (pvar->tab_individus[i].sequence, pvar);
-		printf("Individu #%d\tSequence: %s\tGenotype %d\n",i, pvar->tab_individus[i].sequence, num_geno);
+		pvar->tab_individus[i].num_geno = ajouter_tab_geno (pvar->tab_individus[i].sequence, pvar);
+		printf("Individu #%d\tSequence: %s\tGenotype %d\n",i, pvar->tab_individus[i].sequence, pvar->tab_individus[i].num_geno);
 	}	
 	printf("\nListe non redondante de genotypes\n");
 	for (i = 0; i < pvar->nb_geno ; i ++)
