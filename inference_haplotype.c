@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 	double seuil = -0.001;					// Seuil de convergence de EM pouvant être modifie par l'utilisateur
 	double convergence = 0;					// Valeur de la convergence calcule à chaque iteration
 	char* filename = NULL;					// Nom du fichier contenant la liste de genotypes des individus
-	char* output_prefix = NULL;					// Prefixe du nom de sortie
+	char* output_prefix = NULL;				// Prefixe du nom de sortie
 	double vraisemblance = 0;				// Valeur de vraisemblance qui sera utilisé comme contrôle de sortie de boucle EM
 	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisemblance de l'itération precedente initialisée à -infini
 	T_info var; 							// Structure var contenant les variables et pointeurs de structures importants
@@ -70,6 +70,7 @@ int main(int argc, char** argv)
 			
 	encadre ("PARAMETRES D'ENTREE ET REGLAGES");
 	printf ("\tFichier contenant les genotypes = %s\n",filename);
+	printf ("\tPrefixe des noms des fichiers de sortie = %s\n",output_prefix);
 	printf ("\tMode d'initialisation des haplotypes = %s\n", ((mode_init == 1) ? "Aleatoire" : "Equiprobable"));
 	printf ("\tNombre d'iterations maximum = %d\n",nb_iterations_max );
 	printf ("\tSeuil de convergence = %e\n",seuil);
@@ -104,8 +105,7 @@ int main(int argc, char** argv)
 		printf("\nValeur_convergence = %e\n\n", convergence);
 		
 		// Si le seuil de convergence est atteint = sortie de EM
-		if (convergence >= seuil)
-			break;
+		if (convergence >= seuil) break;
 		
 		// Mise à jour des valeurs prec qui prennent les valeurs courantes
 		update_proba_freq (&var);
@@ -120,10 +120,18 @@ int main(int argc, char** argv)
 	
 	encadre ("CREATION DES FICHIERS DE SORTIE ");
 	
-	diplotype_plus_probable (&var);				// Definir paire plus probable pour chaque genotypes
-	export_geno_diplo (&var, output_prefix);	// Creer fichier listant les genotypes et la paire la plus probable pour chaque individus
-	// tri_tab_haplo (&var);					
-	// exportation_haplo (&var); 				// Creer fichier listant les haplotypes par ordre croissant
+	// Definir paire plus probable pour chaques genotypes
+	diplotype_plus_probable (&var);				
+
+	// Creer fichier listant les genotypes et la paire la plus probable pour chaque individus
+	export_geno_diplo (&var, (strcat (output_prefix, "_infered_diplotypes.txt")) );
+	
+	qsort (var.tab_haplo, var.nb_haplo, (sizeof (T_haplo)), comparaison_frequence);
+	
+	// Creer fichier listant les haplotypes par ordre croissant
+	export_haplo (&var, (strcat (output_prefix, "_infered_diplotypes.txt")));
+	
+	encadre ("FIN DE L'ALGORITHME");
 	
 	return (EXIT_SUCCESS);
 }

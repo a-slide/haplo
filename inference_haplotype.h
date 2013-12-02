@@ -118,5 +118,7 @@
 	// Dans traitement_final
 	void diplotype_plus_probable (T_info*);
 	void export_geno_diplo (T_info*, char*);
+	int comparaison_frequence (void const*, void const*);
+	void export_haplo (T_info*, char*);
 
 #endif /* INFERENCE_HAPLOTYPE_H */
