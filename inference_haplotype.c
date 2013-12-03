@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 	double seuil = -0.001;					// Seuil de convergence de EM pouvant être modifie par l'utilisateur
 	double convergence = 0;					// Valeur de la convergence calcule à chaque iteration
 	char* filename = NULL;					// Nom du fichier contenant la liste de genotypes des individus
-	char* output_prefix = NULL;				// Prefixe du nom de sortie
+	char* output = NULL;					// Prefixe du nom de sortie du fichier
 	double vraisemblance = 0;				// Valeur de vraisemblance qui sera utilisé comme contrôle de sortie de boucle EM
 	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisemblance de l'itération precedente initialisée à -infini
 	T_info var; 							// Structure var contenant les variables et pointeurs de structures importants
@@ -55,14 +55,14 @@ int main(int argc, char** argv)
             if ((seuil < -10)||(seuil > 0)) usage(argv[0]);
 			break;
 		case 'o':
-            output_prefix = optarg;
+            output = optarg;
             break;
         case 'h':
 			usage(argv[0]);
             break;
     }
 	
-	if ((filename == NULL) || (output_prefix == NULL))
+	if ((filename == NULL) || (output == NULL))
 	{
 		printf ("\nles options -f (nom de fichier d'entrée) et -o (prefixe de sortie) doivent être renseignés\n\n");
 		usage(argv[0]);
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 			
 	encadre ("PARAMETRES D'ENTREE ET REGLAGES");
 	printf ("\tFichier contenant les genotypes = %s\n",filename);
-	printf ("\tPrefixe des noms des fichiers de sortie = %s\n",output_prefix);
+	printf ("\tPrefixe des noms des fichiers de sortie1 = %s\n",output);
 	printf ("\tMode d'initialisation des haplotypes = %s\n", ((mode_init == 1) ? "Aleatoire" : "Equiprobable"));
 	printf ("\tNombre d'iterations maximum = %d\n",nb_iterations_max );
 	printf ("\tSeuil de convergence = %e\n",seuil);
@@ -124,12 +124,12 @@ int main(int argc, char** argv)
 	diplotype_plus_probable (&var);				
 
 	// Creer fichier listant les genotypes et la paire la plus probable pour chaque individus
-	export_geno_diplo (&var, (strcat (output_prefix, "_infered_diplotypes.txt")) );
+	export_geno_diplo (&var, output);
 	
 	qsort (var.tab_haplo, var.nb_haplo, (sizeof (T_haplo)), comparaison_frequence);
 	
 	// Creer fichier listant les haplotypes par ordre croissant
-	export_haplo (&var, (strcat (output_prefix, "_infered_diplotypes.txt")));
+	export_haplo (&var, output);
 	
 	encadre ("FIN DE L'ALGORITHME");
 	
