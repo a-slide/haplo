@@ -58,16 +58,11 @@ void diplotype_plus_probable (T_info* pvar)
  * export_geno_diplo
  **********************************************************************/
 
-void export_geno_diplo (T_info* pvar, char* output)
+void export_geno_diplo (T_info* pvar)
 {
 	int i;
 	int num_geno, num_haplo_A, num_haplo_B;
-	char* name;
-	FILE* fp;
-	
-	name = malloc_char_string ((int)(strlen(output))+1);
-	strcpy (name, output);
-	fp = init_file_ptr (strcat(name, "_Diplo_Expl.txt"), "w");
+	FILE* fp = init_file_ptr ("Liste_Diplo_Expl.txt", "w");
 	
 	for (i = 0; i < pvar->nb_ind; i++ ) // Pour chaque genotypes de tab_geno
 	{
@@ -118,15 +113,10 @@ int comparaison_frequence (void const* a, void const* b)
  * export_haplo
  **********************************************************************/
 
-void export_haplo (T_info* pvar, char* output)
+void export_haplo (T_info* pvar)
 {
 	int i;
-	char* name;
-	FILE* fp;
-	
-	name = malloc_char_string ((int)(strlen(output))+1);
-	strcpy (name, output);
-	fp = init_file_ptr (strcat(name, "_Haplo_Freq.txt"), "w");
+	FILE* fp = init_file_ptr ("Liste_Haplo_Freq.txt", "w");
 
 	for (i = 0; i < pvar->nb_haplo; i++ )
 		fprintf(fp, "%s \t Fréquence %e\n", pvar->tab_haplo[i].sequence, pvar->tab_haplo[i].frequence);
