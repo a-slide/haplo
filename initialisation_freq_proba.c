@@ -11,12 +11,12 @@
 void initialisation_freq_proba (T_info* pvar, int mode)
 {
 	printf ("\nINITIALISATION DES FREQUENCES DES HAPLOTYPES\n");
-	// Initialisation equiprobable ou aleatoire des frequences des haplotypes
+	// Initialisation équiprobable ou aléatoire des fréquences des haplotypes
 	(mode == 1) ? haplo_random_freq (pvar) : init_haplo_equi_freq (pvar);
 	print_tab_haplo (pvar);
 	
 	printf ("\nINITIALISATION DES PROBABILITES DES GENOTYPES\n");
-	// Calcul des probabilites des genotypes
+	// Calcul des probabilités des génotypes
 	init_geno_proba (pvar);
 	print_tab_geno (pvar);
 	
@@ -69,7 +69,7 @@ void init_geno_proba (T_info* pvar)
 	double f1, f2;
 	T_diplo_expl* ptrj = NULL;
 	
-	for (i = 0; i < pvar->nb_geno; i++ ) // pour chaque genotype de tab_geno
+	for (i = 0; i < pvar->nb_geno; i++ ) // pour chaque génotype de tab_geno
 	{
 		ptrj = pvar->tab_geno[i].tete;
 		

@@ -14,24 +14,23 @@
 int main(int argc, char** argv)
 	{
 	/******** Declaration et initialisation des variables *********/
-	int nb_iterations = 1; 					// Compteur d'iteration courante pour EM
-	int nb_iterations_max = 10; 			// Nombre maximal de cycles EM pouvant être modifie par l'utilisateur
-	int mode_init = 0; 						// Mode d'initialisation des frequences d'haplotype 0 = equiprobable / 1 = aleatoire 
-	double seuil = -0.001;					// Seuil de convergence de EM pouvant être modifie par l'utilisateur
-	double convergence = 0;					// Valeur de la convergence calcule à chaque iteration
-	char* filename = NULL;					// Nom du fichier contenant la liste de genotypes des individus
-	
-	double vraisemblance = 0;				// Valeur de vraisemblance qui sera utilisé comme contrôle de sortie de boucle EM
-	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisemblance de l'itération precedente initialisée à -infini
-	T_info var; 							// Structure var contenant les variables et pointeurs de structures importants
-		var.tab_individus = NULL;
-		var.tab_geno = NULL;
-		var.tab_haplo = NULL;
+	int nb_iterations = 1; 				// Compteur de l'iteration courante pour l'algorithme EM
+	int nb_iterations_max = 10; 			// Nombre maximal de cycles EM pouvant être modifié par l'utilisateur
+	int mode_init = 0; 				// Mode d'initialisation des frequences d'haplotype 0 = equiprobable / 1 = aléatoire 
+	double seuil = -0.001;				// Seuil de convergence de EM pouvant être modifié par l'utilisateur
+	double convergence = 0;				// Valeur de la convergence calculée à chaque itération
+	char* filename = NULL;				// Nom du fichier contenant la liste des génotypes des individus
+	double vraisemblance = 0;			// Valeur de vraisemblance qui sera utilisée comme contrôle de sortie de boucle EM
+	double vraisemblance_prec = -DBL_MAX;		// Valeur de vraisemblance de l'itération précédente initialisée à -infini
+	T_info var; 					// Structure var contenant les variables et pointeurs de structures importants
+	var.tab_individus = NULL;
+	var.tab_geno = NULL;
+	var.tab_haplo = NULL;
 	
 	/******** Parsing des options avec Getopt *********/
 	int optch;
-    extern int opterr;
-    char format[] = "aeh:f:i:s:";
+    	extern int opterr;
+    	char format[] = "aeh:f:i:s:";
 	opterr = 1;
 	
     while ((optch = getopt(argc, argv, format)) != -1)
@@ -66,44 +65,44 @@ int main(int argc, char** argv)
 	}
 			
 	encadre ("PARAMETRES D'ENTREE ET REGLAGES");
-	printf ("\tFichier contenant les genotypes = %s\n",filename);
-	printf ("\tMode d'initialisation des haplotypes = %s\n", ((mode_init == 1) ? "Aleatoire" : "Equiprobable"));
-	printf ("\tNombre d'iterations maximum = %d\n",nb_iterations_max );
+	printf ("\tFichier contenant les génotypes = %s\n",filename);
+	printf ("\tMode d'initialisation des haplotypes = %s\n", ((mode_init == 1) ? "Aléatoire" : "Equiprobable"));
+	printf ("\tNombre d'itérations maximum = %d\n",nb_iterations_max );
 	printf ("\tSeuil de convergence = %e\n",seuil);
 	
-	/******** Importation et initialisation des donnees *********/
+	/******** Importation et initialisation des données *********/
 	
 	encadre ("IMPORTATION ET PREPARATION DES DONNEES");
-	// Importation des genotypes des individus
+	// Importation des génotypes des individus
 	importation_genotypes (filename, &var);
-	// Creation des structures de donnees contenant les listes non redondantes d'haplotypes et de genotypes
+	// Création des structures de données contenant les listes non redondantes d'haplotypes et de génotypes
 	preparation_liste_geno_haplo (&var);
 	
-	// Initialisation des frequences des haplotypes et des probabilites des genotypes
+	// Initialisation des fréquences des haplotypes et des probabilités des génotypes
 	encadre ("INITIALISATION");
 	initialisation_freq_proba (&var, mode_init);
 	
 	/******** Boucle Expectation/Maximisation *********/
 	
-	// Tant que le nombre d'itération entré en parametre n'est pas atteint et tant qu'il n'y a pas de convergence
+	// Tant que le nombre d'itérations entré en paramètre n'est pas atteint 
 	while (nb_iterations != nb_iterations_max) // Pour permettre l'exception nb_iterations_max = 0
 	{
 		encadre ("DEBUT NOUVELLE ITERATION EM");
 		// Calcul de la fréquence de chaque haplotype par maximisation
 		maximisation (&var);
 
-		// Calcul de la proba de chaque genotypes pour l'iteration en cours et de la vraisemblance
+		// Calcul de la probabilité de chaque génotypes pour l'iteration en cours et de la vraisemblance
 		vraisemblance = estimation_esperance (&var);
 		// printf("\nvraisemblance = %e\nvraisemblance_prec = %e\n", var.vraisemblance, var.vraisemblance_prec);
 		
-		// Calcule de la valeur de la convergence
+		// Calcul de la valeur de la convergence
 		convergence = (fabs(vraisemblance-vraisemblance_prec)/(vraisemblance_prec));
 		printf("\nValeur_convergence = %e\n\n", convergence);
 		
 		// Si le seuil de convergence est atteint = sortie de EM
 		if (convergence >= seuil) break;
 		
-		// Mise à jour des valeurs prec qui prennent les valeurs courantes
+		// Mise à jour des valeurs précédentes des fréquences d'haplotypes, des probabilités de génotypes ainsi que de la vraisemblance 		qui prennent les valeurs courantes calculées lors de la dernière itération
 		update_proba_freq (&var);
 		vraisemblance_prec = vraisemblance;
 		nb_iterations ++;
@@ -116,15 +115,15 @@ int main(int argc, char** argv)
 	
 	encadre ("CREATION DES FICHIERS DE SORTIE ");
 	
-	// Definir paire plus probable pour chaques genotypes
+	// Définir la paire de diplotype la plus probable pour chaques génotypes
 	diplotype_plus_probable (&var);				
 
-	// Creer fichier listant les genotypes et la paire la plus probable pour chaque individus
+	// Création du fichier listant les génotypes suivis de la paire d'haplotype la plus probable pour chaque individus
 	export_geno_diplo (&var);
 	
 	qsort (var.tab_haplo, var.nb_haplo, (sizeof (T_haplo)), comparaison_frequence);
 	
-	// Creer fichier listant les haplotypes par ordre croissant
+	// Création du fichier listant les haplotypes selon leur fréquence par ordre croissant
 	export_haplo (&var);
 	
 	encadre ("FIN DE L'ALGORITHME");
@@ -146,21 +145,20 @@ void usage (char* prog_name)
 		0 si les 2 haplotypes possèdent l'allèle mineure\n\
 		2 si les 2 haplotypes possèdent l'allèle majeure\n\
 		1 si 1 haplotype possède l'allèle majeure et l'autre l'allèle mineure\n\
-	Par exemple si le genotype G est constitué des haplotypes Ha = aBCd et Hb = abCd ou les minuscules\n\
-	sont les allèles minneures et les majuscules les allèles majeures, alors les Ha, Hb et G\n\
+	Par exemple si le génotype G est constitué des haplotypes Ha = aBCd et Hb = abCd où les minuscules\n\
+	sont les allèles mineures et les majuscules les allèles majeures, alors les Ha, Hb et G\n\
 	seront respectivement codés O110, 0010 et 0120.\n\n");
 	
 	fprintf (stderr, "DETAILS DES OPTIONS\n\n\
-	-f	Fichier texte contenant une liste de génotypes pour une serie d'individus (Obligatoire)\n\
-	-o	Prefixe du nom du fichier de sortie (Obligatoire)\n\n\
+	-f	Fichier texte contenant une liste de génotypes pour une série d'individus (Obligatoire)\n\
 	-e	Mode d'initialisation des fréquences d'haplotypes equi-probable (option par defaut)\n\
 	-a	Mode d'initialisation des fréquences d'haplotypes aléatoire\n\
 		Les options -a et -e sont mutuellement exclusives (en cas de conflit -e sera appliquée)\n\n\
-	-i	Nombre d'itération de la boucle EM. Valeur obligatoirement positive ou nulle\n\
+	-i	Nombre d'itérations de la boucle EM. Valeur obligatoirement positive ou nulle\n\
 		Par defaut = 10. la valeur peut être réglée à 0 pour boucler jusqu'à convergence\n\n\
-	-s	Valeur seuil de convergence declenchant l'arret de la boucle EM. Min = -10 / Max = 0\n\
-		Par defaut = -0.001. la valeur peut être réglée à 0 pour boucler jusqu'à l'iteration maximale\n\n\
-	-h	Affiche cet ecran d'aide\n\n");
+	-s	Valeur seuil de convergence déclenchant l'arrêt de la boucle EM. Min = -10 / Max = 0\n\
+		Par defaut = -0.001. la valeur peut être réglée à 0 pour boucler jusqu'à l'itération maximale\n\n\
+	-h	Affiche cet écran d'aide\n\n");
 	
 	fprintf (stderr, "EXEMPLES\n\n\
 	%s -f mon_dossier/genotypes.txt -a -i 20 -s -0.00001\n\

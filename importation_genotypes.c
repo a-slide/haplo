@@ -9,10 +9,12 @@
  **********************************************************************/
 //PRE CONDITIONS
 //POST CONDITIONS
+
+//Importation des génotypes des individus depuis le fichier vers un tableau dynamique 
 void importation_genotypes(char* genotype_file, T_info* pvar)
 {
 	int i;
-	int taille;
+	int taille; 
 	int nb_ind; 
 	FILE* file = NULL;
 	
@@ -24,10 +26,10 @@ void importation_genotypes(char* genotype_file, T_info* pvar)
 	
 	printf("\nTaille des génotypes = %d, Nombre d'individus = %d\n\n", taille, nb_ind);
 	
-	pvar->tab_individus = malloc (sizeof (T_individu) * nb_ind);
-	if (pvar->tab_individus == NULL) error_and_exit();
+	pvar->tab_individus = malloc (sizeof (T_individu) * nb_ind); // Allocation mémoire pour le tableau dynamique
+	if (pvar->tab_individus == NULL) error_and_exit(); // Si l'allocation mémoire n'a pas fonctionné, on affiche une erreur
 	
-	for (i = 0; i < nb_ind; i++) 
+	for (i = 0; i < nb_ind; i++) // Pour chaque individu
 	{
 		pvar->tab_individus[i].sequence = malloc_char_string(taille + 1);
 		fgets(pvar->tab_individus[i].sequence, taille + 2, file); // Remplissage du tableau par fgets

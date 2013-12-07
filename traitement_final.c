@@ -11,40 +11,40 @@
 void diplotype_plus_probable (T_info* pvar)
 {
 /* PRECONDITIONS
- * Les fréquences des haplotypes ont été calculés jusqu'à l'itération de sortie
+ * Les fréquences des haplotypes ont été calculées jusqu'à l'itération de sortie
  * POSTCONDITIONS
- * Un diplotype explicatif le plus probable a été associé à chaque genotype
+ * Le diplotype explicatif le plus probable a été associé à chaque genotype
  */
 	
 	int i;
 	double proba_diplo;
 	T_diplo_expl* ptrj = NULL;
 
-	for (i = 0; i < pvar->nb_geno; i++ ) // Pour chaque genotypes de tab_geno
+	for (i = 0; i < pvar->nb_geno; i++ ) // Pour chaque génotype de tab_geno
 	{
 		ptrj = pvar->tab_geno[i].tete;
-		pvar->tab_geno[i].num_haplo_A_max = 0;
+		pvar->tab_geno[i].num_haplo_A_max = 0; // initialisation
 		pvar->tab_geno[i].num_haplo_B_max = 0;
 		pvar->tab_geno[i].proba_diplo_max = 0;
 		printf ("GENOTYPE %d\n", i);
-		printf ("Afichage uniquement en cas de probabilité plus haute\n");
+		printf ("Affichage uniquement en cas de probabilité plus haute\n");
 		
-		while (ptrj != NULL) // Pour chaque diplotypes explicatifs
+		while (ptrj != NULL) // Pour chaque diplotype explicatif
 		{
-			// Si Homozygote
+			// Si on a affaire à un homozygote
 			if (ptrj->num_haplo_A == ptrj->num_haplo_B)
  				proba_diplo = pvar->tab_haplo[ptrj->num_haplo_A].frequence * pvar->tab_haplo[ptrj->num_haplo_A].frequence;
  				
-			// Si Heterozygote
+			// Si on a affaire à un hétérozygote
 			else
 				proba_diplo = 2*(pvar->tab_haplo[ptrj->num_haplo_A].frequence * pvar->tab_haplo[ptrj->num_haplo_B].frequence);
 
-			// si le diplotype est plus fréquent que les diplotypes precedants.
+			// Si le diplotype est plus fréquent que les diplotypes précédents.
 			if (proba_diplo > pvar->tab_geno[i].proba_diplo_max)
 			{
 				printf ("Diplotype : %d / %d\tProba : %e\n",ptrj->num_haplo_A, ptrj->num_haplo_B, proba_diplo);
-				pvar->tab_geno[i].proba_diplo_max = proba_diplo;
-				pvar->tab_geno[i].num_haplo_A_max = ptrj->num_haplo_A;	
+				pvar->tab_geno[i].proba_diplo_max = proba_diplo; // le diplotype les plus explicatif devient le diplotype courant
+				pvar->tab_geno[i].num_haplo_A_max = ptrj->num_haplo_A;// Les numéros des 2 haplotypes correspondant sont mis à jour
 				pvar->tab_geno[i].num_haplo_B_max = ptrj->num_haplo_B;	
 			}
 			ptrj = ptrj -> suivant;
@@ -64,18 +64,18 @@ void export_geno_diplo (T_info* pvar)
 	int num_geno, num_haplo_A, num_haplo_B;
 	FILE* fp = init_file_ptr ("Liste_Diplo_Expl.txt", "w");
 	
-	for (i = 0; i < pvar->nb_ind; i++ ) // Pour chaque genotypes de tab_geno
+	for (i = 0; i < pvar->nb_ind; i++ ) // Pour chaque génotype de tab_geno
 	{
-		// Accès à tab_individus et memorisation du numéro de genotype associé 
+		// Accès à tab_individus et mémorisation du numéro de génotype associé 
 		fprintf(fp, "Individu # %d\n",i);
 		num_geno = pvar->tab_individus[i].num_geno;
 		
-		// Accès au génotype associé dans tab_geno et memorisation des numéros de d'haplotypes explicatifs 
+		// Accès au génotype associé dans tab_geno et mémorisation des numéros des haplotypes explicatifs 
 		fprintf(fp, "Genotype : %d\t%s\n", num_geno, pvar->tab_individus[i].sequence);
 		num_haplo_A = pvar->tab_geno[num_geno].num_haplo_A_max;
 		num_haplo_B = pvar->tab_geno[num_geno].num_haplo_B_max;
 		
-		// Accès aux sequences des haplotypes explicatifs dans tab_haplo 
+		// Accès aux séquences des haplotypes explicatifs dans tab_haplo 
 		fprintf(fp, "HaploA %d :\t%s\n", num_haplo_A, pvar->tab_haplo[num_haplo_A].sequence);
 		fprintf(fp, "HaploB %d :\t%s\n\n", num_haplo_B, pvar->tab_haplo[num_haplo_B].sequence);
 	}
@@ -90,7 +90,7 @@ void export_geno_diplo (T_info* pvar)
 
 int comparaison_frequence (void const* a, void const* b)
 {
-	// typage des pointeur
+	// typage des pointeurs
 	T_haplo const* pa = a;
 	T_haplo const* pb = b;
 	double difference = 0;
@@ -98,7 +98,7 @@ int comparaison_frequence (void const* a, void const* b)
 	// Calcul de la différence pour tri decroissant
 	difference = (pb->frequence - pa->frequence); 
 	
-	// test multiple car notion d'égalité n'existe pas en reel
+	// test multiple car la notion d'égalité n'existe pas en réel
 	if (difference > 0)
 		return 1;
 	
@@ -116,9 +116,9 @@ int comparaison_frequence (void const* a, void const* b)
 void export_haplo (T_info* pvar)
 {
 	int i;
-	FILE* fp = init_file_ptr ("Liste_Haplo_Freq.txt", "w");
+	FILE* fp = init_file_ptr ("Liste_Haplo_Freq.txt", "w"); // Ouverture d'un fichier en mode écriture
 
-	for (i = 0; i < pvar->nb_haplo; i++ )
+	for (i = 0; i < pvar->nb_haplo; i++ ) // Ecriture des séquences des haplotypes suivis de leur fréquence
 		fprintf(fp, "%s \t Fréquence %e\n", pvar->tab_haplo[i].sequence, pvar->tab_haplo[i].frequence);
 	
 	fclose(fp);
