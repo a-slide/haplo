@@ -17,12 +17,12 @@ int main(int argc, char** argv)
 	char* filename = NULL;					// Nom du fichier contenant la liste des génotypes des individus
 	int nb_iterations = 1; 					// Compteur de l'iteration courante pour l'algorithme EM
 	int nb_iterations_max = 10; 			// Nombre maximal de cycles EM pouvant être modifié par l'utilisateur
-	int mode_init = 0; 						// Mode d'initialisation des frequences d'haplotype 0 = equiprobable / 1 = aléatoire 
+	int mode_init = 0; 						// Mode d'initialisation des frequences d'haplotype 0 = equiprobable / 1 = 										aléatoire 
 	double seuil = -0.001;					// Seuil de convergence de EM pouvant être modifié par l'utilisateur
 	double convergence = 0;					// Valeur de la convergence calculée à chaque itération
 	double vraisemblance = 0;				// Valeur de vraisemblance qui sera utilisée comme contrôle de sortie de boucle EM
 	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisemblance de l'itération précédente initialisée à -infini
-	T_info var; 							// Structure var contenant les variables et pointeurs de structures importants
+	T_info var; 							// Structure var contenant les variables et pointeurs de structures 										importants
 		var.tab_individus = NULL;
 		var.tab_geno = NULL;
 		var.tab_haplo = NULL;
@@ -30,36 +30,36 @@ int main(int argc, char** argv)
 	/******** Parsing des options avec Getopt *********/
 	int optch;
     extern int opterr;
-    char format[] = "aeh:f:i:s:";
+    char format[] = "aeh:f:i:s:"; // Ordre de l'appel des paramètres
 	opterr = 1;
 	
     while ((optch = getopt(argc, argv, format)) != -1)
     switch (optch)
     {
-      case 'a':
-		mode_init = 1;
+	case 'a':	
+		mode_init = 1; // mode d'initialisation aléatoire des fréquences d'haplotypes
 		break;
-      case 'e':
-        mode_init = 0;
-        break;
-	  case 'i':
-        nb_iterations_max = atoi(optarg);
-        if (nb_iterations_max < 0) usage(argv[0]);
-        break;
-	  case 'f':
-        filename = optarg;
-        break;
-      case 's':
-        seuil = atof (optarg);
-        if ((seuil < -10)||(seuil > 0)) usage(argv[0]);
+	case 'e': 
+        	mode_init = 0; // mode d'initialisation équiprobable des fréquences d'haplotypes
+        	break;
+     	case 'i':
+       		nb_iterations_max = atoi(optarg);
+        	if (nb_iterations_max < 0) usage(argv[0]); // Si l'utilisateur rentre un nombre d'itérations inférieur à 0, on affiche un message 									expliquant l'utilisation des paramètres 
+        	break;
+	case 'f':
+        	filename = optarg; // Le nom du fichier à importer est l'argument rentré par l'utilisateur
+        	break;
+     	case 's':
+        	seuil = atof (optarg);
+        	if ((seuil < -10)||(seuil > 0)) usage(argv[0]); // Si l'utilisateur rentre un seuil supérieur à 0 ou inférieur à -10, on affiche 									un message expliquant l'utilisation des paramètres
 		break;
-	  case 'h':
-		usage(argv[0]);
-        break;
+	case 'h':
+		usage(argv[0]); // Ce paramètre affiche un message d'aide expliquant l'utilisation des paramètres
+        	break;
     }
 	
 	/******** Test et paramètrage *********/
-	if ((filename == NULL))
+	if ((filename == NULL)) // Si aucun nom de fichier n'est rentré par l'utilisateur
 	{
 		printf ("\nl'options -f (nom de fichier d'entrée) doit être renseigné\n\n");
 		usage(argv[0]);
@@ -103,15 +103,14 @@ int main(int argc, char** argv)
 		// Si le seuil de convergence est atteint = sortie de EM
 		if (convergence >= seuil) break;
 		
-		// Mise à jour des valeurs précédentes des fréquences d'haplotypes, des probabilités de génotypes ainsi que de la vraisemblance 	qui prennent les valeurs courantes calculées lors de la dernière itération
+		// Mise à jour des valeurs précédentes des fréquences d'haplotypes, des probabilités de génotypes ainsi que de la vraisemblance 		qui prennent les valeurs courantes calculées lors de la dernière itération
 		update_proba_freq (&var);
 		vraisemblance_prec = vraisemblance;
-		
-		nb_iterations ++;
+		nb_iterations ++; // Incrémentation du nombre d'itérations effectuées
 	}	
 	
 	encadre ("SORTIE DE EM");
-	printf("Iteration de sortie %d / convergence de sortie : %e (seuil : %e) \n", nb_iterations, convergence, seuil);
+	printf("Itération de sortie %d / convergence de sortie : %e (seuil : %e) \n", nb_iterations, convergence, seuil);
 
 	/******** Creation et export des fichiers de resultats *********/
 	
