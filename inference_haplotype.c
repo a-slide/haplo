@@ -14,53 +14,54 @@
 int main(int argc, char** argv)
 	{
 	/******** Declaration et initialisation des variables *********/
-	int nb_iterations = 1; 				// Compteur de l'iteration courante pour l'algorithme EM
+	char* filename = NULL;					// Nom du fichier contenant la liste des génotypes des individus
+	int nb_iterations = 1; 					// Compteur de l'iteration courante pour l'algorithme EM
 	int nb_iterations_max = 10; 			// Nombre maximal de cycles EM pouvant être modifié par l'utilisateur
-	int mode_init = 0; 				// Mode d'initialisation des frequences d'haplotype 0 = equiprobable / 1 = aléatoire 
-	double seuil = -0.001;				// Seuil de convergence de EM pouvant être modifié par l'utilisateur
-	double convergence = 0;				// Valeur de la convergence calculée à chaque itération
-	char* filename = NULL;				// Nom du fichier contenant la liste des génotypes des individus
-	double vraisemblance = 0;			// Valeur de vraisemblance qui sera utilisée comme contrôle de sortie de boucle EM
-	double vraisemblance_prec = -DBL_MAX;		// Valeur de vraisemblance de l'itération précédente initialisée à -infini
-	T_info var; 					// Structure var contenant les variables et pointeurs de structures importants
-	var.tab_individus = NULL;
-	var.tab_geno = NULL;
-	var.tab_haplo = NULL;
+	int mode_init = 0; 						// Mode d'initialisation des frequences d'haplotype 0 = equiprobable / 1 = aléatoire 
+	double seuil = -0.001;					// Seuil de convergence de EM pouvant être modifié par l'utilisateur
+	double convergence = 0;					// Valeur de la convergence calculée à chaque itération
+	double vraisemblance = 0;				// Valeur de vraisemblance qui sera utilisée comme contrôle de sortie de boucle EM
+	double vraisemblance_prec = -DBL_MAX;	// Valeur de vraisemblance de l'itération précédente initialisée à -infini
+	T_info var; 							// Structure var contenant les variables et pointeurs de structures importants
+		var.tab_individus = NULL;
+		var.tab_geno = NULL;
+		var.tab_haplo = NULL;
 	
 	/******** Parsing des options avec Getopt *********/
 	int optch;
-    	extern int opterr;
-    	char format[] = "aeh:f:i:s:";
+    extern int opterr;
+    char format[] = "aeh:f:i:s:";
 	opterr = 1;
 	
     while ((optch = getopt(argc, argv, format)) != -1)
     switch (optch)
     {
-        case 'a':
-            mode_init = 1;
-            break;
-        case 'e':
-            mode_init = 0;
-            break;
-		case 'i':
-            nb_iterations_max = atoi(optarg);
-            if (nb_iterations_max < 0) usage(argv[0]);
-            break;
-		case 'f':
-            filename = optarg;
-            break;
-        case 's':
-            seuil = atof (optarg);
-            if ((seuil < -10)||(seuil > 0)) usage(argv[0]);
-			break;
-	case 'h':
+      case 'a':
+		mode_init = 1;
+		break;
+      case 'e':
+        mode_init = 0;
+        break;
+	  case 'i':
+        nb_iterations_max = atoi(optarg);
+        if (nb_iterations_max < 0) usage(argv[0]);
+        break;
+	  case 'f':
+        filename = optarg;
+        break;
+      case 's':
+        seuil = atof (optarg);
+        if ((seuil < -10)||(seuil > 0)) usage(argv[0]);
+		break;
+	  case 'h':
 		usage(argv[0]);
-            break;
+        break;
     }
 	
+	/******** Test et paramètrage *********/
 	if ((filename == NULL))
 	{
-		printf ("\nles options -f (nom de fichier d'entrée) \n\n");
+		printf ("\nl'options -f (nom de fichier d'entrée) doit être renseigné\n\n");
 		usage(argv[0]);
 	}
 			
@@ -102,9 +103,10 @@ int main(int argc, char** argv)
 		// Si le seuil de convergence est atteint = sortie de EM
 		if (convergence >= seuil) break;
 		
-		// Mise à jour des valeurs précédentes des fréquences d'haplotypes, des probabilités de génotypes ainsi que de la vraisemblance 		qui prennent les valeurs courantes calculées lors de la dernière itération
+		// Mise à jour des valeurs précédentes des fréquences d'haplotypes, des probabilités de génotypes ainsi que de la vraisemblance 	qui prennent les valeurs courantes calculées lors de la dernière itération
 		update_proba_freq (&var);
 		vraisemblance_prec = vraisemblance;
+		
 		nb_iterations ++;
 	}	
 	
@@ -121,13 +123,13 @@ int main(int argc, char** argv)
 	// Création du fichier listant les génotypes suivis de la paire d'haplotype la plus probable pour chaque individus
 	export_geno_diplo (&var);
 	
+	// Tri de la liste d'haplotype en fonction de leur fréquence avec QuickSort
 	qsort (var.tab_haplo, var.nb_haplo, (sizeof (T_haplo)), comparaison_frequence);
 	
 	// Création du fichier listant les haplotypes selon leur fréquence par ordre croissant
 	export_haplo (&var);
 	
 	encadre ("FIN DE L'ALGORITHME");
-	
 	return (EXIT_SUCCESS);
 }
 
@@ -147,7 +149,7 @@ void usage (char* prog_name)
 		1 si 1 haplotype possède l'allèle majeure et l'autre l'allèle mineure\n\
 	Par exemple si le génotype G est constitué des haplotypes Ha = aBCd et Hb = abCd où les minuscules\n\
 	sont les allèles mineures et les majuscules les allèles majeures, alors les Ha, Hb et G\n\
-	seront respectivement codés O110, 0010 et 0120.\n\n");
+	seront respectivement codés 0110, 0010 et 0120.\n\n");
 	
 	fprintf (stderr, "DETAILS DES OPTIONS\n\n\
 	-f	Fichier texte contenant une liste de génotypes pour une série d'individus (Obligatoire)\n\

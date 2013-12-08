@@ -57,7 +57,7 @@ ptr_allocation.o: ptr_allocation.c ptr_allocation.h
 	# PHONY = Dependances systematiquement reconstruites
 
 clean:
-	rm -rf inference_haplotype.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o maximisation_esperance.o ptr_allocation.o
+	rm -rf inference_haplotype.o importation_genotypes.o preparation_liste_geno_haplo.o initialisation_freq_proba.o maximisation_esperance.o ptr_allocation.o traitement_final.o
 	# Supprimer tous les fichiers intermédiaires
 
 mrproper: clean
